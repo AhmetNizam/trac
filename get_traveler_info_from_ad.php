@@ -3,11 +3,11 @@
 	include("functions.php");
 
 	// LDAP bağlantısı için gerekli bilgiler
-	$ldapHost = "ldap://mlpcare.com";		// "ldap://your_domain_controller";	// Active Directory sunucu adresi
-	$ldapPort = 389;						// 389; Default						// LDAP bağlantı portu
-	$ldapDomainName = "MLPCARE";			// "MLPCARE" + "\\";				// LDAP Active Directory Domain Name	
-	$ldapUser = $_SESSION['username'];		// "ahmet.nizam1";					// Active Directory kullanıcı adı
-	$ldapPassword = $_SESSION['password'];	// "an112743.";						// Active Directory kullanıcı şifresi
+	$ldapHost = "ldap://mlpcare.com";		// Active Directory sunucu adresi
+	$ldapPort = 389;						// LDAP bağlantı portu
+	$ldapDomainName = "MLPCARE";			// LDAP Active Directory Domain Name	
+	$ldapUser = $_SESSION['username'];		// Active Directory kullanıcı adı
+	$ldapPassword = $_SESSION['password'];	// Active Directory kullanıcı şifresi
 
 	// Active Directory DN
 	$dn = "DC=mlpcare,DC=com";
