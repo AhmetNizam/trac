@@ -1,6 +1,6 @@
 <?php
-	include("params.php");
-	include("functions.php");
+	require("params.php");
+	require("functions.php");
 
 	$user_info = $_SESSION['user_info'];
 	$name = $user_info['name'];

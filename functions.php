@@ -1,7 +1,7 @@
 <?php
 	session_start();
 
-	include("connect_mysql.php");
+	require("connect_mysql.php");
 
 	function set_null($variable) {
 		if(empty($variable) || $variable == '') {

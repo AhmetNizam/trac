@@ -1,5 +1,5 @@
 <?php
-	include("functions.php");
+	require("functions.php");
 
 	$travel['travel_routeid'] = $_GET['inp_route'];
 	$travel['travel_reasonid'] = $_GET['sel_travel_reason'];

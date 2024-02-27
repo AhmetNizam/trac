@@ -1,5 +1,5 @@
 <?php
-	include("check_session.php");
+	require("check_session.php");
 
 	unset($_SESSION['request']);
 ?>

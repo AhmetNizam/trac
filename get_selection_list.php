@@ -1,7 +1,7 @@
 <?php
 	session_start();
 
-	include("connect_mysql.php");
+	require("connect_mysql.php");
 
 	$table_name = $_GET['table_name'];
 	$field_name = (($_GET['field_name'] ?? '') !== '') ? $_GET['field_name'] : "NAME";

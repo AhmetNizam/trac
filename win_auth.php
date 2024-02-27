@@ -1,6 +1,6 @@
 <?php
-	include("params.php");
-	include("functions.php");
+	require("params.php");
+	require("functions.php");
 
 	// LDAP bağlantısı için gerekli bilgiler
 	$ldapHost = "ldap://mlpcare.com";		// Active Directory sunucu adresi
