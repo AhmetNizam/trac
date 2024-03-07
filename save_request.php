@@ -1,6 +1,5 @@
 <?php
-	session_start();
-
+	require("check_session.php");
 	require("connect_mysql.php");
 
 	$conn = get_mysql_connection();
@@ -91,10 +90,26 @@
 			$requestdetailid = $row['requestdetailid'];
 		}
 	}
+
+	if($requestid && $requestdetailid) {
 ?>
 {"Rows":[{
-	"status":"Başarılı."
+	"status":"1",
+	"requestid":"<?php echo $requestid; ?>"
+}],"TableName":"Table",
+"Columns":{
+	"0":"status",
+	"1":"requestid"
+}}
+<?php
+	} else {
+?>
+{"Rows":[{
+	"status":"0"
 }],"TableName":"Table",
 "Columns":{
 	"0":"status"
 }}
+<?php
+	}
+?>

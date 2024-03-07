@@ -31,7 +31,7 @@
 							if(data.Rows) {
 								var rowData = data.Rows[0];
 								if(rowData.err_code == "0") {
-									window.location = ('./trac_inquiry_form.php');
+									window.location.assign('./trac_inquiry_form.php');
 								} else {
 									$('#check_auth').html(rowData.msg);
 									$('#div_error_msg').show();

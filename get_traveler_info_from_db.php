@@ -1,6 +1,5 @@
 <?php
-	session_start();
-
+	require("check_session.php");
 	require("connect_mysql.php");
 
 	$conn = get_mysql_connection();
@@ -32,6 +31,10 @@
 			$passportno = $_GET['passportno'] ?? '';
 			$stmt = $conn->prepare($sql . 'T.PASSPORT_NO = :passportno');
 			$stmt->bindParam(':passportno', $passportno, PDO::PARAM_INT);
+		} else if($type == 'phone') {
+			$phone = $_GET['phone'] ?? '';
+			$stmt = $conn->prepare($sql . 'T.PHONE = :phone');
+			$stmt->bindParam(':phone', $phone, PDO::PARAM_STR);
 		} else if($type == 'mail') {
 			$mail = $_GET['mail'] ?? '';
 			$stmt = $conn->prepare($sql . 'T.EMAIL = :mail');

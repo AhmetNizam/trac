@@ -1,6 +1,5 @@
 <?php
-	session_start();
-
+	require("check_session.php");
 	require("connect_mysql.php");
 
 	$location_id = $_GET['location_id'];

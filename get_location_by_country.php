@@ -1,6 +1,5 @@
 <?php
-	session_start();
-
+	require("check_session.php");
 	require("connect_mysql.php");
 
 	$country_id = $_GET['country_id'];

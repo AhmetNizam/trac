@@ -4,7 +4,7 @@
 	require("connect_mysql.php");
 
 	function set_null($variable) {
-		if(empty($variable) || $variable == '') {
+		if((empty($variable) || $variable == '') && $variable != 0) {
 			return null;
 		} else {
 			return $variable;

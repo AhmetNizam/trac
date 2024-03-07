@@ -26,9 +26,9 @@
 	$uuid = $_GET['inp_uuid'];
 	$requester_type = $_GET['sel_requester_type'];
 
-	if($requester_type <= 3) {
+	if($requester_type < 3) {
 		$traveler_type = 1;
-	} else if($requester_type == 4) {
+	} else if($requester_type == 3) {
 		$traveler_type = 2;
 	}
 

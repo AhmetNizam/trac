@@ -21,25 +21,15 @@
 		<script src="./js/inputmask.binding.js"></script>
 
 		<script type="text/javascript">
-			var xmlFile = "./alert.xml";
-			var xmlData = [];
+			var xmlFile = './alert.xml';
+			var xmlDoc = '';
 
 			$.ajax({
 				type: "GET",
 				url: xmlFile,
 				dataType: "xml",
 				success: function(xml) {
-					$(xml).find('form').children().each(function() {
-						var sectionData = [];
-						$(this).children().each(function() {
-							var inputData = [];
-							$(this).children().each(function() {
-								inputData[this.tagName] = $(this).text();
-							});
-							sectionData.push(inputData);
-						});
-						xmlData[this.tagName] = sectionData;
-					});
+					xmlDoc = $(xml);
 				},
 				error: function(xhr, status, error) {
 					alert("XML dosyası okunamadı: " + error);
@@ -51,30 +41,7 @@
 				$('#inp_identityno').inputmask("99999999999");
 				$('#inp_phone').inputmask("9(999) 999 99 99");
 
-				function isdescendant(parent, child) {
-					let node = child.parentNode;
-					while(node != null) {
-						if(node == parent) {
-							return true;
-						}
-						node = node.parentNode;
-					}
-					return false;
-				}
-
-				function rgfocus(event) {
-					$('[id^="div_radio_group"]').each(function() {
-						if(this == event.target || isdescendant(this, event.target)) {
-							$(this).parent().css('border-color', 'black');
-							$(this).css('border-color', 'black');
-						} else {
-							$(this).parent().css('border-color', '#767676');
-							$(this).css('border-color', 'transparent');
-						}
-					});
-				}
-
-				$(document).mousedown(function(event) {
+				$(document).on("mousedown", function(event) {
 					rgfocus(event);
 				});
 
@@ -82,26 +49,26 @@
 					rgfocus(event);
 				});
 
-				$(':input').keydown(function(event) {
-					if(event.target.tagName != 'textarea' && $(event.target).attr('type') != 'button' && event.which == '13') {
-						check_form_data($(event.target).attr('area'), 'go');
+				$(':input').on("blur", function(event) {
+					if(!$(event.target).attr('readonly')) {
+						if(($(event.target).attr('id') == 'inp_name' || $(event.target).attr('id') == 'inp_surname' || $(event.target).attr('id') == 'inp_birthdate') &&
+							$('#inp_name').val() != '' && $('#inp_surname').val() != '' && $('#inp_birthdate').val() != '') {
+							get_traveler_info('name', 'name=' + $('#inp_name').val() + '&surname=' + $('#inp_surname').val() + '&birthdate=' + $('#inp_birthdate').val());
+						} else if($(event.target).attr('id') == 'inp_identityno' && $(event.target).val() != '') {
+							get_traveler_info('identityno', 'identityno=' + $(event.target).val());
+						} else if($(event.target).attr('id') == 'inp_passportno' && $(event.target).val() != '') {
+							get_traveler_info('passportno', 'passportno=' + $(event.target).val());
+						} else if($(event.target).attr('id') == 'inp_phone' && $(event.target).val() != '') {
+							get_traveler_info('phone', 'phone=' + $(event.target).val());
+						} else if($(event.target).attr('id') == 'inp_mail' && $(event.target).val() != '') {
+							get_traveler_info('mail', 'mail=' + $(event.target).val());
+						}
 					}
 				});
 
-				$('#inp_mail').keyup(function(event) {
-					if($('#sel_requester_type').val() == '2' && $('#inp_mail').val().indexOf('@mlpcare.com') > 0) {
-						$.getJSON('./get_staff_information.php?mail=' + $('#inp_mail').val(),
-							function(data) {
-								if(data.Rows) {
-									var rowData = data.Rows[0];
-									set_staff_information(rowData);
-								}
-							}
-						).fail(
-							function(jqXHR, textStatus, errorThrown) {
-								set_staff_information('');
-							}
-						);
+				$(':input').on("keydown", function(event) {
+					if(event.target.tagName != 'textarea' && $(event.target).attr('type') != 'button' && event.which == '13') {
+						check_form($(event.target));
 					}
 				});
 
@@ -131,34 +98,70 @@
 					$(this).val(value);
 				});
 
+				$('#inp_from_city').on("keyup", function(event) {
+					set_reason();
+				});
+
 				$("#inp_to_city").on("input", function() {
 					var value = $(this).val().replace(/ı/g, "I").replace(/i/g, "İ").toUpperCase();
 					$(this).val(value);
-				});
-
-				$('#inp_from_city').on("keyup", function(event) {
-					set_reason();
 				});
 
 				$('#inp_to_city').on("keyup", function(event) {
 					set_reason();
 				});
 
-				$(':input').on("blur", function(event) {
-					if($(event.target).attr('readonly') == 'true') {
-						if(($(event.target).attr('id') == 'inp_name' || $(event.target).attr('id') == 'inp_surname' || $(event.target).attr('id') == 'inp_birthdate') &&
-							$('#inp_name').val() != '' && $('#inp_surname').val() != '' && $('#inp_birthdate').val() != '') {
-							alert(':)');
-						} else if($(event.target).attr('id') == 'inp_identityno' && $(event.target).val() != '') {
-							alert(';)');
-						} else if($(event.target).attr('id') == 'inp_passportno' && $(event.target).val() != '') {
-							alert(':P');
-						} else if($(event.target).attr('id') == 'inp_mail' && $(event.target).val() != '') {
-							alert(':D');
-						}
+			});
+
+			function isdescendant(parent, child) {
+				let node = child.parentNode;
+				while(node != null) {
+					if(node == parent) {
+						return true;
+					}
+					node = node.parentNode;
+				}
+				return false;
+			}
+
+			function rgfocus(event) {
+				$('[id^="div_radio_group"]').each(function() {
+					if(this == event.target || isdescendant(this, event.target)) {
+						$(this).parent().css('border-color', 'black');
+						$(this).css('border-color', 'black');
+					} else {
+						$(this).parent().css('border-color', '#767676');
+						$(this).css('border-color', 'transparent');
 					}
 				});
-			});
+			}
+
+			function get_traveler_info(search_type, params) {
+				var postdata = 'type=' + search_type + '&' + params;
+				$.getJSON('./get_traveler_info_from_db.php?' + postdata,
+					function(data) {
+						if(data.Rows) {
+							var rowData = data.Rows[0];
+							if(rowData.status == 1) {
+								set_traveler_information(rowData);
+							} else if(search_type == 'mail') {
+								$.getJSON('./get_traveler_info_from_ad.php?' + postdata,
+									function(data) {
+										if(data.Rows) {
+											var rowData = data.Rows[0];
+											if(rowData.status == 1) {
+												set_traveler_information(rowData);
+											} else {
+												toggle_visibility([$('#sel_position').parent(), $('#sel_department').parent(), $('#sel_location').parent()], [$('#inp_position').parent(), $('#inp_department').parent(), $('#inp_location').parent()]);
+											}
+										}
+									}
+								)
+							}
+						}
+					}
+				);
+			}
 
 			function identityno_checksum(id) {
 				if((parseInt(id[0]) + parseInt(id[1]) + parseInt(id[2]) + parseInt(id[3]) + parseInt(id[4]) + parseInt(id[5]) + parseInt(id[6]) + parseInt(id[7]) + parseInt(id[8]) + parseInt(id[9])) % 10 != parseInt(id[10])) {
@@ -208,6 +211,10 @@
 				reset_values([$('#inp_location'), $('#inp_position'), $('#inp_department'), $('#sel_location'), $('#sel_position'), $('#sel_department')]);
 			}
 
+			function reset_writability_attribute() {
+				toggle_writability([$('#inp_name'), $('#inp_surname'), $('#inp_birthdate'), $('#inp_identityno'), $('#inp_passportno'), $('#inp_phone'), $('#inp_mail')], []);
+			}
+
 			function reset_alerts() {
 				$('[class=lbl_alrt1]').attr('class', 'lbl_norm1');
 				$('[class=lbl_alrt2]').attr('class', 'lbl_norm2');
@@ -244,29 +251,37 @@
 				});
 			}
 
-			function search_form_data(section, action) {
+			function check_form_data(item, section) {
 				var result = true;
-				$.each(xmlData[section], function() {
-					if(eval(this['condition'])) {
-						if(action == 'warn') {
-							alert(this['alert']);
-							$('#' + this['label']).attr('class', this['class']);
-						} else if(this['forced_alert'] == '1') {
-							alert(this['alert']);
+				var action = item.attr('action');
+				var xmlNodes = $.merge(xmlDoc.find('input[id="' + item.attr('id') + '"]'), xmlDoc.find(section).children());
+
+				xmlNodes.each(
+					function() {
+						if(eval($(this).children('condition').text())) {
+							if(action == 'warn') {
+								alert($(this).children('alert').text());
+								var label_item = $('#' + $('#' + $(this).attr('id')).attr('label'));
+								label_item.attr('class', label_item.attr('alert'));
+							} else if($(this).children('forced_alert').text() == '1') {
+								alert($(this).children('alert').text());
+							}
+							$('#' + $(this).attr('id')).focus();
+							result = false;
+							return result;
 						}
-						$('#' + this['focus']).focus();
-						result = false;
-						return false;
 					}
-				});
+				);
 				return result;
 			}
 
-			function check_form_data(area, action) {
+			function check_form(item) {
 				reset_alerts();
-				
+
+				var area = item.attr('area');
+
 				if(area == 'area1') {
-					if(search_form_data('section1', action)) {
+					if(check_form_data(item, 'section1')) {
 						$('#inp_add').focus();
 						return true;
 					} else {
@@ -274,27 +289,27 @@
 					}
 				} else if(area == 'area2') {
 					if($('#rb_route1').prop('checked')) {
-						if(!search_form_data('section2', action)) {
+						if(!check_form_data(item, 'section2')) {
 							return false;
 						}
 					} else if($('#rb_route2').prop('checked')) {
-						if(!search_form_data('section3', action)) {
+						if(!check_form_data(item, 'section3')) {
 							return false;
 						}
 					}
-					if(!search_form_data('section4', action)) {
+					if(!check_form_data(item, 'section4')) {
 						return false;
 					}
-					if(!search_form_data('section5', action)) {
+					if(!check_form_data(item, 'section5')) {
 						return false;
 					}
 					if($('#rb_trac1').prop('checked') || $('#rb_trac2').prop('checked')) {
-						if(!search_form_data('section6', action)) {
+						if(!check_form_data(item, 'section6')) {
 							return false;
 						}
 					}
 					if($('#rb_trac1').prop('checked') || $('#rb_trac3').prop('checked')) {
-						if(!search_form_data('section7', action)) {
+						if(!check_form_data(item, 'section7')) {
 							return false;
 						}
 					}
@@ -307,19 +322,29 @@
 				$('#inp_' + item).val($('#sel_' + item + ' option:selected').text());
 			}
 
-			function set_staff_information(data) {
+			function set_traveler_information(data) {
+				toggle_visibility([$('#inp_position').parent(), $('#inp_department').parent(), $('#inp_location').parent()], [$('#sel_position').parent(), $('#sel_department').parent(), $('#sel_location').parent()]);
+
 				$('#inp_name').val(data.name ? data.name : '');
 				$('#inp_surname').val(data.surname ? data.surname : '');
-				if($('#sel_requester_type').val() == '1') {
-					$('#inp_mail').val(data.mail ? data.mail : '');
-				}
-				$('#inp_location').val(data.location ? data.location : '');
-				$('#inp_position').val(data.position ? data.position : '');
-				$('#inp_department').val(data.department ? data.department : '');
+				$('#inp_birthdate').val(data.birthdate ? data.birthdate : '');
+				$('#inp_identityno').val(data.identityno ? data.identityno : '');
+				$('#inp_passportno').val(data.passportno ? data.passportno : '');
+				$('#inp_phone').val(data.phone ? data.phone : '');
+				$('#inp_mail').val(data.mail ? data.mail : '');
+				$('#inp_position').val(data.positionname ? data.positionname : '');
+				$('#inp_department').val(data.departmentname ? data.departmentname : '');
+				$('#inp_location').val(data.locationname ? data.locationname : '');
+				$('#sel_position').val(data.positionid ? data.positionid : '');
+				$('#sel_department').val(data.departmentid ? data.departmentid : '');
+				$('#sel_location').val(data.locationid ? data.locationid : '');
+
+				$('#inp_add').focus();
 			}
 
 			function set_requester_type(item) {
 				reset_personel_info();
+				reset_writability_attribute();
 
 				var focus_item = $('#sel_requester_type');
 
@@ -328,29 +353,16 @@
 				} else if(item.val() == '1') {
 					toggle_visibility([$('#div_personal_info'), $('#div_staff_info'), $('#inp_position').parent(), $('#inp_department').parent(), $('#inp_location').parent(), $('#div_add_button')], [$('#sel_position').parent(), $('#sel_department').parent(), $('#sel_location').parent()]);
 					toggle_writability([], [$('#inp_name'), $('#inp_surname'), $('#inp_mail')]);
-
-					$.getJSON('./get_user_information.php',
-						function(data) {
-							if(data.Rows) {
-								var rowData = data.Rows[0];
-								set_staff_information(rowData);
-							}
-						}
-					);
-
+					get_traveler_info('mail', 'mail=<?php echo $_SESSION['user_info']['mail']; ?>');
 					focus_item = $('#inp_birthdate');
 				} else if(item.val() == '2') {
 					toggle_visibility([$('#div_personal_info'), $('#div_staff_info'), $('#inp_position').parent(), $('#inp_department').parent(), $('#inp_location').parent(), $('#div_add_button')], [$('#sel_position').parent(), $('#sel_department').parent(), $('#sel_location').parent()]);
-					toggle_writability([$('#inp_mail')], [$('#inp_name'), $('#inp_surname')]);
-					focus_item = $('#inp_mail');
-				} else if(item.val() == '3') {
-					toggle_visibility([$('#div_personal_info'), $('#div_staff_info'), $('#sel_position').parent(), $('#sel_department').parent(), $('#sel_location').parent(), $('#div_add_button')], [$('#inp_position').parent(), $('#inp_department').parent(), $('#inp_location').parent()]);
 					toggle_writability([$('#inp_name'), $('#inp_surname'), $('#inp_mail')], []);
-					focus_item = $('#inp_name');
-				} else if(item.val() == '4') {
+					focus_item = $('#inp_identityno');
+				} else if(item.val() == '3') {
 					toggle_visibility([$('#div_personal_info'), $('#div_add_button')], [$('#div_staff_info')]);
 					toggle_writability([$('#inp_name'), $('#inp_surname'), $('#inp_mail')], []);
-					focus_item = $('#inp_name');
+					focus_item = $('#inp_identityno');
 				}
 
 				if($('#inp_route').val() == '') {
@@ -394,13 +406,13 @@
 				}
 			}
 
-			function add_traveler() {
-				if($('#inp_add').val() == 'Güncelle ⭮') {
-					$('#inp_add').val('Ekle ✚');
+			function add_traveler(item) {
+				if(item.val() == 'Güncelle ⭮') {
+					item.val('Ekle ✚');
 					$('#sel_requester_type').prop('disabled', false);
 				}
 
-				if(!check_form_data('area1', 'warn')) {
+				if(!check_form(item)) {
 					return false;
 				}
 
@@ -425,7 +437,6 @@
 											'		<td id="' + uuid + '-surname" class="trv_cell_tb">' + rowData.surname + '</td>' +
 											'		<td id="' + uuid + '-birthdate" class="trv_cell_tb">' + rowData.birthdate + '</td>' +
 											'		<td id="' + uuid + '-identityno" class="trv_cell_tb">' + rowData.identityno + '</td>';
-
 
 								if($('#inp_route').val() == '2') {
 									content +=	'		<td id="' + uuid + '-passportno" class="trv_cell_tb">' + rowData.passportno + '</td>';
@@ -528,13 +539,13 @@
 				}
 			}
 
-			function set_travel_info() {
-				if($('#inp_continue').val() == 'Devam ⮞') {
-					$('#inp_continue').val('Geri ⮝');
+			function set_travel_info(item) {
+				if(item.val() == 'Devam ⮞') {
+					item.val('Geri ⮝');
 					toggle_visibility([$('#div_route'), $('#div_travel_info')], [$('#div_traveler_type'), $('#div_personal_info'), $('#div_staff_info'), $('#div_add_button')]);
-					check_form_data('area2', 'go');
-				} else if($('#inp_continue').val() == 'Geri ⮝') {
-					$('#inp_continue').val('Devam ⮞');
+					check_form(item);
+				} else if(item.val() == 'Geri ⮝') {
+					item.val('Devam ⮞');
 					toggle_visibility([$('#div_traveler_type')], []);
 				}
 			}
@@ -583,7 +594,6 @@
 					div_item.hide();
 				} else if(ctrl_item.val() == '0') {
 					if($('#rb_route1').prop('checked') == true || country_item.val() == '220') {
-						//fill_selection_list(select_item, 'city');
 						toggle_visibility([div_item, select_item.parent()], [input_item.parent()]);
 					} else {
 						toggle_visibility([div_item, input_item.parent()], [select_item.parent()]);
@@ -620,8 +630,8 @@
 				}
 			}
 
-			function save_request() {
-				if(!check_form_data('area2', 'warn')) {
+			function save_request(item) {
+				if(!check_form(item)) {
 					return false;
 				}
 
@@ -629,20 +639,26 @@
 
 				$.getJSON('./add_request.php?' + formData).done(
 					function() {
+						
 						alert('İlk aşama başarı ile geçildi.');
+						
 						$.getJSON('./save_request.php',
 							function(data) {
 								if(data.Rows) {
 									var rowData = data.Rows[0];
-									
-									alert(rowData.status + ' Buraya kadar sorun yok.');
+									if(rowData.status == 1) {
+										alert(rowData.requestid + ' Buraya kadar sorun yok.');
+
+										window.location.assign('./request_approval_form.php?' + rowData.requestid);
+									} else {
+										alert('Kayıt yapılamadı!');
+									}
 								}
 							}
 						);
 					}
 				);
 			}
-
 		</script>
 	</head>
 	<body background="./images/body_gray.png" topmargin="20">
@@ -683,15 +699,14 @@
 													<div id="div_request_owner">
 														<div style="display: flex; height: 38px;">
 															<div style="width: 35%;">
-																<div id="div_lbl0" class="lbl_norm1">Talep Sahibi: <font style="color: red;">*</font></div>
+																<div id="div_lbl0" class="lbl_norm1" alert="lbl_alrt1">Talep Sahibi: <font style="color: red;">*</font></div>
 															</div>
 															<div style="width: 65%;">
-																<select id="sel_requester_type" name="sel_requester_type" area="area1" class="style5" style="width: 100%; height: 30px;" onChange="set_requester_type($(this));">
+																<select id="sel_requester_type" name="sel_requester_type" label="div_lbl0" area="area1" action="go" class="style5" style="width: 100%; height: 30px;" onChange="set_requester_type($(this));">
 																	<option value="">-- Seçiniz --</option>
 																	<option value="1">Kendim</option>
-																	<option value="2">Personel (MLPCare)</option>
-																	<option value="3">Personel (Diğer)</option>
-																	<option value="4">Misafir</option>
+																	<option value="2">Personel</option>
+																	<option value="3">Misafir</option>
 																</select>
 															</div>
 														</div>
@@ -703,18 +718,18 @@
 													<div id="div_travel_route">
 														<div style="display: flex; height: 38px;" on>
 															<div style="width: 35%;">
-																<div id="div_lbl1" class="lbl_norm1">Seyahat Rotası: <font style="color: red;">*</font></div>
+																<div id="div_lbl1" class="lbl_norm1" alert="lbl_alrt1">Seyahat Rotası: <font style="color: red;">*</font></div>
 															</div>
 															<div id="div_frame_route" class="radio_frame" style="width: 65%; height: 28px; margin-left: 1px;">
 																<div id="div_radio_group_route" style="display: flex; height: 79%; padding-top: 4px; border: solid 1px transparent;">
 																	<div style="width: 5px;"></div>
 																	<div style="width: 24px;">
-																		<input type="radio" id="rb_route1" name="rb_route" area="area1" value="1" class="style5" onChange="set_travel_route($(this));" />
+																		<input type="radio" id="rb_route1" name="rb_route" label="div_lbl1" area="area1" action="go" value="1" class="style5" onChange="set_travel_route($(this));" />
 																	</div>
 																	<label for="rb_route1" style="margin-top: 2px;">Yurt İçi</label>
 																	<div style="width: 20px;"></div>
 																	<div style="width: 24px;">
-																		<input type="radio" id="rb_route2" name="rb_route" area="area1" value="2" class="style5" onChange="set_travel_route($(this));" />
+																		<input type="radio" id="rb_route2" name="rb_route" label="div_lbl1" area="area1" action="go" value="2" class="style5" onChange="set_travel_route($(this));" />
 																	</div>
 																	<label for="rb_route2" style="margin-top: 2px;">Yurt Dışı</label>
 																</div>
@@ -733,58 +748,58 @@
 												<div align="left" style="width: 97%;">
 													<div style="display: flex; height: 38px;">
 														<div style="width: 35%;">
-															<div id="div_lbl2" class="lbl_norm1">Adı Soyadı: <font style="color: red;">*</font></b></div>
+															<div id="div_lbl2" class="lbl_norm1" alert="lbl_alrt1">Kimlik No: <font style="color: red;">*</font></div>
+														</div>
+														<div style="width: 65%;">
+															<input type="text" id="inp_identityno" name="inp_identityno" label="div_lbl2" area="area1" action="go" class="style5" style="width: 100%; height: 30px;" />
+														</div>
+													</div>
+													<div style="display: flex; height: 38px;">
+														<div style="width: 35%;">
+															<div id="div_lbl3" class="lbl_norm1" alert="lbl_alrt1">Adı Soyadı: <font style="color: red;">*</font></b></div>
 														</div>
 														<div style="display: flex; width: 65%;">
-															<input type="text" id="inp_name" name="inp_name" area="area1" class="style5" style="width: 49%; height: 30px;" readonly />
+															<input type="text" id="inp_name" name="inp_name" label="div_lbl3" area="area1" action="go" class="style5" style="width: 49%; height: 30px;" readonly />
 															<div style="width: 2%;"></div>
-															<input type="text" id="inp_surname" name="inp_surname" area="area1" class="style5" style="width: 49%; height: 30px;" readonly />
+															<input type="text" id="inp_surname" name="inp_surname" label="div_lbl3" area="area1" action="go" class="style5" style="width: 49%; height: 30px;" readonly />
 														</div>
 													</div>
 													<div style="display: flex; height: 38px;">
 														<div style="width: 35%;">
-															<div id="div_lbl3" class="lbl_norm1">Doğum Tarihi: <font style="color: red;">*</font></div>
+															<div id="div_lbl4" class="lbl_norm1" alert="lbl_alrt1">Doğum Tarihi: <font style="color: red;">*</font></div>
 														</div>
 														<div style="width: 65%;">
-															<input type="date" id="inp_birthdate" name="inp_birthdate" area="area1" class="style5" style="width: 100%; height: 30px;" />
-														</div>
-													</div>
-													<div style="display: flex; height: 38px;">
-														<div style="width: 35%;">
-															<div id="div_lbl4" class="lbl_norm1">Kimlik No: <font style="color: red;">*</font></div>
-														</div>
-														<div style="width: 65%;">
-															<input type="text" id="inp_identityno" name="inp_identityno" area="area1" class="style5" style="width: 100%; height: 30px;" />
+															<input type="date" id="inp_birthdate" name="inp_birthdate" label="div_lbl4" area="area1" action="go" class="style5" style="width: 100%; height: 30px;" />
 														</div>
 													</div>
 												</div>
 											</div>
 											<div align="right" style="width: 50%;">
 												<div align="left" style="width: 97%;">
+													<div id="div_passport" hidden>
+														<div style="display: flex; height: 38px;">
+															<div style="width: 35%;">
+																<div id="div_lbl5" class="lbl_norm1" alert="lbl_alrt1">Pasaport No: <font style="color: red;">*</font></div>
+															</div>
+															<div style="width: 65%;">
+																<input type="text" id="inp_passportno" name="inp_passportno" label="div_lbl5" area="area1" action="go" class="style5" style="width: 100%; height: 30px;" />
+															</div>
+														</div>
+													</div>
 													<div style="display: flex; height: 38px;">
 														<div style="width: 35%;">
-															<div id="div_lbl5" class="lbl_norm1">Telefon No: <font style="color: red;">*</font></div>
+															<div id="div_lbl6" class="lbl_norm1" alert="lbl_alrt1">Telefon No: <font style="color: red;">*</font></div>
 														</div>
 														<div style="width: 65%;">
-															<input type="text" id="inp_phone" name="inp_phone" area="area1" class="style5" style="width: 100%; height: 30px;" />
+															<input type="text" id="inp_phone" name="inp_phone" label="div_lbl6" area="area1" action="go" class="style5" style="width: 100%; height: 30px;" />
 														</div>
 													</div>
 													<div style="display: flex; height: 38px;">
 														<div style="width: 35%">
-															<div id="div_lbl6" class="lbl_norm1">Mail Adresi: <font style="color: red;">*</font></div>
+															<div id="div_lbl7" class="lbl_norm1" alert="lbl_alrt1">Mail Adresi: <font style="color: red;">*</font></div>
 														</div>
 														<div style="width: 65%;">
-															<input type="text" id="inp_mail" name="inp_mail" area="area1" class="style5" style="width: 100%; height: 30px;" readonly />
-														</div>
-													</div>
-													<div id="div_passport" hidden>
-														<div style="display: flex; height: 38px;">
-															<div style="width: 35%;">
-																<div id="div_lbl7" class="lbl_norm1">Pasaport No: <font style="color: red;">*</font></div>
-															</div>
-															<div style="width: 65%;">
-																<input type="text" id="inp_passportno" name="inp_passportno" area="area1" class="style5" style="width: 100%; height: 30px;" />
-															</div>
+															<input type="text" id="inp_mail" name="inp_mail" label="div_lbl7" area="area1" action="go" class="style5" style="width: 100%; height: 30px;" readonly />
 														</div>
 													</div>
 												</div>
@@ -798,20 +813,20 @@
 												<div align="left" style="width: 97%;">
 													<div style="display: flex; height: 38px;">
 														<div style="width: 35%;">
-															<div id="div_lbl8" class="lbl_norm1">Görevi / Ünvanı:</div>
+															<div id="div_lbl8" class="lbl_norm1" alert="lbl_alrt1">Görevi / Ünvanı:</div>
 														</div>
 														<div style="width: 65%;">
-															<div hidden><input type="text" id="inp_position" name="inp_position" area="area1" class="style5" style="width: 100%; height: 30px;" readonly /></div>
-															<div hidden><select id="sel_position" name="sel_position" area="area1" class="style5" style="width: 100%; height: 30px;" onChange="set_selected_text('position');"></select></div>
+															<div hidden><input type="text" id="inp_position" name="inp_position" label="div_lbl8" area="area1" action="go" class="style5" style="width: 100%; height: 30px;" readonly /></div>
+															<div hidden><select id="sel_position" name="sel_position" label="div_lbl8" area="area1" action="go" class="style5" style="width: 100%; height: 30px;" onChange="set_selected_text('position');"></select></div>
 														</div>
 													</div>
 													<div style="display: flex; height: 38px;">
 														<div style="width: 35%;">
-															<div id="div_lbl9" class="lbl_norm1">Departmanı:</div>
+															<div id="div_lbl9" class="lbl_norm1" alert="lbl_alrt1">Departmanı:</div>
 														</div>
 														<div style="width: 65%;">
-															<div hidden><input type="text" id="inp_department" name="inp_department" area="area1" class="style5" style="width: 100%; height: 30px;" readonly /></div>
-															<div hidden><select id="sel_department" name="sel_department" area="area1" class="style5" style="width: 100%; height: 30px;" onChange="set_selected_text('department');"></select></div>
+															<div hidden><input type="text" id="inp_department" name="inp_department" label="div_lbl9" area="area1" action="go" class="style5" style="width: 100%; height: 30px;" readonly /></div>
+															<div hidden><select id="sel_department" name="sel_department" label="div_lbl9" area="area1" action="go" class="style5" style="width: 100%; height: 30px;" onChange="set_selected_text('department');"></select></div>
 														</div>
 													</div>
 												</div>
@@ -820,11 +835,11 @@
 												<div align="left" style="width: 97%;">
 													<div style="display: flex; height: 38px;">
 														<div style="width: 35%;">
-															<div id="div_lbl10" class="lbl_norm1">Çalışma Şubesi:</div>
+															<div id="div_lbl10" class="lbl_norm1" alert="lbl_alrt1">Çalışma Şubesi:</div>
 														</div>
 														<div style="width: 65%;">
-															<div hidden><input type="text" id="inp_location" name="inp_location" area="area1" class="style5" style="width: 100%; height: 30px;" readonly /></div>
-															<div hidden><select id="sel_location" name="sel_location" area="area1" class="style5" style="width: 100%; height: 30px;" onChange="set_selected_text('location');"></select></div>
+															<div hidden><input type="text" id="inp_location" name="inp_location" label="div_lbl10" area="area1" action="go" class="style5" style="width: 100%; height: 30px;" readonly /></div>
+															<div hidden><select id="sel_location" name="sel_location" label="div_lbl10" area="area1" action="go" class="style5" style="width: 100%; height: 30px;" onChange="set_selected_text('location');"></select></div>
 														</div>
 													</div>
 												</div>
@@ -839,7 +854,7 @@
 													<div id="div_add">
 														<div style="display: flex; height: 38px;">
 															<div style="width: 100%;">
-																<input type="button" id="inp_add" class="style5" style="width: 90px; height: 30px; font-weight: bold;" value="Ekle ✚" onClick="add_traveler();" />
+																<input type="button" id="inp_add" area="area1" action="warn" class="style5" style="width: 90px; height: 30px; font-weight: bold;" value="Ekle ✚" onClick="add_traveler($(this));" />
 															</div>
 														</div>
 													</div>
@@ -893,7 +908,7 @@
 													<div id="div_continue">
 														<div style="display: flex; height: 38px;">
 															<div style="width: 100%;">
-																<input type="button" id="inp_continue" class="style5" style="width: 90px; height: 30px; font-weight: bold;" value="Devam ⮞" onClick="set_travel_info();" />
+																<input type="button" id="inp_continue" area="area2" action="go" class="style5" style="width: 90px; height: 30px; font-weight: bold;" value="Devam ⮞" onClick="set_travel_info($(this));" />
 															</div>
 														</div>
 													</div>
@@ -915,43 +930,43 @@
 							<div style="display: flex;">
 								<div align="left" style="width: 50%;">
 									<div id="div_from_country" align="left" style="width: 97%; height: 58px;" hidden>
-										<div id="div_lbl11" class="lbl_norm2">Nereden: <font style="color: red;">*</font></div>
+										<div id="div_lbl11" class="lbl_norm2" alert="lbl_alrt2">Nereden: <font style="color: red;">*</font></div>
 										<div>
-											<select id="sel_from_country" name="sel_from_country" area="area2" class="style5" style="width: 100%; height: 30px;" onChange="set_country($(this), $('#div_from_location'), $('#sel_from_location'), $('#div_from_city'), $('#inp_from_city'), $('#sel_from_city'));"></select>
+											<select id="sel_from_country" name="sel_from_country" label="div_lbl11" area="area2" action="go" class="style5" style="width: 100%; height: 30px;" onChange="set_country($(this), $('#div_from_location'), $('#sel_from_location'), $('#div_from_city'), $('#inp_from_city'), $('#sel_from_city'));"></select>
 										</div>
 									</div>
 									<div id="div_from_location" align="left" style="width: 97%; height: 58px;" hidden>
-										<div id="div_lbl12" class="lbl_norm2">Lokasyon: <font style="color: red;">*</font></div>
+										<div id="div_lbl12" class="lbl_norm2" alert="lbl_alrt2">Lokasyon: <font style="color: red;">*</font></div>
 										<div>
-											<select id="sel_from_location" name="sel_from_location" area="area2" class="style5" style="width: 100%; height: 30px;" onChange="set_location($(this), $('#sel_from_country'), $('#div_from_city'), $('#inp_from_city'), $('#sel_from_city'));"></select>
+											<select id="sel_from_location" name="sel_from_location" label="div_lbl12" area="area2" action="go" class="style5" style="width: 100%; height: 30px;" onChange="set_location($(this), $('#sel_from_country'), $('#div_from_city'), $('#inp_from_city'), $('#sel_from_city'));"></select>
 										</div>
 									</div>
 									<div id="div_from_city" align="left" style="width: 97%; height: 58px;" hidden>
-										<div id="div_lbl13" class="lbl_norm2">Şehir: <font style="color: red;">*</font></div>
+										<div id="div_lbl13" class="lbl_norm2" alert="lbl_alrt2">Şehir: <font style="color: red;">*</font></div>
 										<div>
-											<div hidden><input type="text" id="inp_from_city" name="inp_from_city" area="area2" class="style5" style="width: 100%; height: 30px;" /></div>
-											<div hidden><select id="sel_from_city" name="sel_from_city" area="area2" class="style5" style="width: 100%; height: 30px;" onChange="set_city('from_city');"></select></div>
+											<div hidden><input type="text" id="inp_from_city" name="inp_from_city" label="div_lbl13" area="area2" action="go" class="style5" style="width: 100%; height: 30px;" /></div>
+											<div hidden><select id="sel_from_city" name="sel_from_city" label="div_lbl13" area="area2" action="go" class="style5" style="width: 100%; height: 30px;" onChange="set_city('from_city');"></select></div>
 										</div>
 									</div>
 								</div>
 								<div align="right" style="width: 50%;">
 									<div id="div_to_country" align="left" style="width: 97%; height: 58px;" hidden>
-										<div id="div_lbl14" class="lbl_norm2">Nereye: <font style="color: red;">*</font></div>
+										<div id="div_lbl14" class="lbl_norm2" alert="lbl_alrt2">Nereye: <font style="color: red;">*</font></div>
 										<div>
-											<select id="sel_to_country" name="sel_to_country" area="area2" class="style5" style="width: 100%; height: 30px;" onChange="set_country($(this), $('#div_to_location'), $('#sel_to_location'), $('#div_to_city'), $('#inp_to_city'), $('#sel_to_city'));"></select>
+											<select id="sel_to_country" name="sel_to_country" label="div_lbl14" area="area2" action="go" class="style5" style="width: 100%; height: 30px;" onChange="set_country($(this), $('#div_to_location'), $('#sel_to_location'), $('#div_to_city'), $('#inp_to_city'), $('#sel_to_city'));"></select>
 										</div>
 									</div>
 									<div id="div_to_location" align="left" style="width: 97%; height: 58px;" hidden>
-										<div id="div_lbl15" class="lbl_norm2">Lokasyon: <font style="color: red;">*</font></div>
+										<div id="div_lbl15" class="lbl_norm2" alert="lbl_alrt2">Lokasyon: <font style="color: red;">*</font></div>
 										<div>
-											<select id="sel_to_location" name="sel_to_location" area="area2" class="style5" style="width: 100%; height: 30px;" onChange="set_location($(this), $('#sel_to_country'), $('#div_to_city'), $('#inp_to_city'), $('#sel_to_city'));"></select>
+											<select id="sel_to_location" name="sel_to_location" label="div_lbl15" area="area2" action="go" class="style5" style="width: 100%; height: 30px;" onChange="set_location($(this), $('#sel_to_country'), $('#div_to_city'), $('#inp_to_city'), $('#sel_to_city'));"></select>
 										</div>
 									</div>
 									<div id="div_to_city" align="left" style="width: 97%; height: 58px;" hidden>
-										<div id="div_lbl16" class="lbl_norm2">Şehir: <font style="color: red;">*</font></div>
+										<div id="div_lbl16" class="lbl_norm2" alert="lbl_alrt2">Şehir: <font style="color: red;">*</font></div>
 										<div>
-											<div hidden><input type="text" id="inp_to_city" name="inp_to_city" area="area2" class="style5" style="width: 100%; height: 30px;" /></div>
-											<div hidden><select id="sel_to_city" name="sel_to_city" area="area2" class="style5" style="width: 100%; height: 30px;" onChange="set_city('to_city');"></select></div>
+											<div hidden><input type="text" id="inp_to_city" name="inp_to_city" label="div_lbl16" area="area2" action="go" class="style5" style="width: 100%; height: 30px;" /></div>
+											<div hidden><select id="sel_to_city" name="sel_to_city" label="div_lbl16" area="area2" action="go" class="style5" style="width: 100%; height: 30px;" onChange="set_city('to_city');"></select></div>
 										</div>
 									</div>
 								</div>
@@ -959,9 +974,9 @@
 							<div style="display: flex;">
 								<div align="left" style="width: 50%;">
 									<div id="div_travel_reason" align="left" style="width: 97%; height: 58px;" hidden>
-										<div id="div_lbl17" class="lbl_norm2">Seyahat Nedeni: <font style="color: red;">*</font></div>
+										<div id="div_lbl17" class="lbl_norm2" alert="lbl_alrt2">Seyahat Nedeni: <font style="color: red;">*</font></div>
 										<div>
-											<select id="sel_travel_reason" name="sel_travel_reason" area="area2" class="style5" style="width: 100%; height: 30px;" onChange="toggle_visibility([$('#div_transportation_accommodation')], []);"></select>
+											<select id="sel_travel_reason" name="sel_travel_reason" label="div_lbl17" area="area2" action="go" class="style5" style="width: 100%; height: 30px;" onChange="toggle_visibility([$('#div_transportation_accommodation')], []);"></select>
 										</div>
 									</div>
 								</div>
@@ -977,17 +992,17 @@
 								<div id="div_radio_group_trac" align="left" style="display: flex; height: 79%; padding-top: 4px; border: solid 1px transparent;">
 									<div style="width: 5px;"></div>
 									<div style="width: 24px;">
-										<input type="radio" id="rb_trac1" name="rb_trac" area="area2" value="1" class="style5" onChange="toggle_visibility([$('#div_transportation'), $('#div_accommodation'), $('#div_save')], []);" />
+										<input type="radio" id="rb_trac1" name="rb_trac" label="div_lbl18" area="area2" action="go" value="1" class="style5" onChange="toggle_visibility([$('#div_transportation'), $('#div_accommodation'), $('#div_save')], []);" />
 									</div>
 									<label for="rb_trac1" style="margin-top: 2px;">Ulaşım ve Konaklama Talebi</label>
 									<div style="width: 20px;"></div>
 									<div style="width: 24px;">
-										<input type="radio" id="rb_trac2" name="rb_trac" area="area2" value="2" class="style5" onChange="toggle_visibility([$('#div_transportation'), $('#div_save')], [$('#div_accommodation')]);" />
+										<input type="radio" id="rb_trac2" name="rb_trac" label="div_lbl18" area="area2" action="go" value="2" class="style5" onChange="toggle_visibility([$('#div_transportation'), $('#div_save')], [$('#div_accommodation')]);" />
 									</div>
 									<label for="rb_trac2" style="margin-top: 2px;">Ulaşım Talebi</label>
 									<div style="width: 20px;"></div>
 									<div style="width: 24px;">
-										<input type="radio" id="rb_trac3" name="rb_trac" area="area2" value="3" class="style5" onChange="toggle_visibility([$('#div_accommodation'), $('#div_save')], [$('#div_transportation')]);" />
+										<input type="radio" id="rb_trac3" name="rb_trac" label="div_lbl18" area="area2" action="go" value="3" class="style5" onChange="toggle_visibility([$('#div_accommodation'), $('#div_save')], [$('#div_transportation')]);" />
 									</div>
 									<label for="rb_trac3" style="margin-top: 2px;">Konaklama Talebi</label>
 									<div style="width: 20px;"></div>
@@ -1005,47 +1020,47 @@
 								<div align="left" style="width: 50%;">
 									<div align="left" style="width: 97%;">
 										<div style="height: 58px;">
-											<div id="div_lbl19" class="lbl_norm2">Gidiş Tarihi: <font style="color: red;">*</font></div>
-											<div><input type="date" id="inp_departure_date" name="inp_departure_date" area="area2" class="style5" style="width: 100%; height: 30px;" /></div>
+											<div id="div_lbl19" class="lbl_norm2" alert="lbl_alrt2">Gidiş Tarihi: <font style="color: red;">*</font></div>
+											<div><input type="date" id="inp_departure_date" name="inp_departure_date" label="div_lbl19" area="area2" action="go" class="style5" style="width: 100%; height: 30px;" /></div>
 										</div>
 										<div style="height: 58px;">
-											<div id="div_lbl20" class="lbl_norm2">Dönüş Tarihi:</div>
-											<div><input type="date" id="inp_return_date" name="inp_return_date" area="area2" class="style5" style="width: 100%; height: 30px;" /></div>
+											<div id="div_lbl20" class="lbl_norm2" alert="lbl_alrt2">Dönüş Tarihi:</div>
+											<div><input type="date" id="inp_return_date" name="inp_return_date" label="div_lbl20" area="area2" action="go" class="style5" style="width: 100%; height: 30px;" /></div>
 										</div>
 										<div style="height: 58px;">
-											<div id="div_lbl21" class="lbl_norm2">Transfer İhtiyaç Durumu: <font style="color: red;">*</font></div>
+											<div id="div_lbl21" class="lbl_norm2" alert="lbl_alrt2">Transfer İhtiyaç Durumu: <font style="color: red;">*</font></div>
 											<div id="div_frame_tns" class="radio_frame" style="height: 28px;">
 												<div id="div_radio_group_tns" style="display: flex; height: 79%; padding-top: 4px; border: solid 1px transparent;">
 													<div style="width: 5px;"></div>
 													<div style="width: 24px;">
-														<input type="radio" id="rb_tns1" name="rb_tns" area="area2" value="1" class="style5" onClick="toggle_visibility([$('#div_nftd')], []);" />
+														<input type="radio" id="rb_tns1" name="rb_tns" label="div_lbl21" area="area2" action="go" value="1" class="style5" onClick="toggle_visibility([$('#div_nftd')], []);" />
 													</div>
 													<label for="rb_tns1" style="margin-top: 2px;">Var</label>
 													<div style="width: 20px;"></div>
 													<div style="width: 24px;">
-														<input type="radio" id="rb_tns2" name="rb_tns" area="area2" value="0" class="style5" onClick="toggle_visibility([], [$('#div_nftd')]);" />
+														<input type="radio" id="rb_tns2" name="rb_tns" label="div_lbl21" area="area2" action="go" value="0" class="style5" onClick="toggle_visibility([], [$('#div_nftd')]);" />
 													</div>
 													<label for="rb_tns2" style="margin-top: 2px;">Yok</label>
 												</div>
 											</div>
 										</div>
 										<div id="div_nftd" style="height: 58px;" hidden>
-											<div id="div_lbl22" class="lbl_norm2">Transfer İhtiyaç Detayı: <font style="color: red;">*</font></div>
-											<div><input type="text" id="inp_transfer_need_detail" name="inp_transfer_need_detail" area="area2" class="style5" style="width: 100%; height: 30px;" /></div>
+											<div id="div_lbl22" class="lbl_norm2" alert="lbl_alrt2">Transfer İhtiyaç Detayı: <font style="color: red;">*</font></div>
+											<div><input type="text" id="inp_transfer_need_detail" name="inp_transfer_need_detail" label="div_lbl22" area="area2" action="go" class="style5" style="width: 100%; height: 30px;" /></div>
 										</div>
 									</div>
 								</div>
 								<div align="right" style="width: 50%;">
 									<div align="left" style="width: 97%;">
 										<div style="height: 58px;">
-											<div id="div_lbl23" class="lbl_norm2">Ulaşım Yöntemi: <font style="color: red;">*</font></div>
+											<div id="div_lbl23" class="lbl_norm2" alert="lbl_alrt2">Ulaşım Yöntemi: <font style="color: red;">*</font></div>
 											<div>
-												<select id="sel_transportation_mode" name="sel_transportation_mode" area="area2" class="style5" style="width: 100%; height: 30px;"></select>
+												<select id="sel_transportation_mode" name="sel_transportation_mode" label="div_lbl23" area="area2" action="go" class="style5" style="width: 100%; height: 30px;"></select>
 											</div>
 										</div>
 										<div style="height: 116px;">
-											<div id="div_lbl24" class="lbl_norm2">Ulaşım Detayları: <font style="color: red;"></font></div>
-											<div><textarea id="txt_transportation_detail" name="txt_transportation_detail" area="area2" class="style5" style="width: 100%; height: 88px;"></textarea></div>
+											<div id="div_lbl24" class="lbl_norm2" alert="lbl_alrt2">Ulaşım Detayları: <font style="color: red;"></font></div>
+											<div><textarea id="txt_transportation_detail" name="txt_transportation_detail" label="div_lbl24" area="area2" action="go" class="style5" style="width: 100%; height: 88px;"></textarea></div>
 										</div>
 									</div>
 								</div>
@@ -1061,20 +1076,20 @@
 								<div align="left" style="width: 50%;">
 									<div align="left" style="width: 97%;">
 										<div style="height: 58px;">
-											<div id="div_lbl25" class="lbl_norm2">Konaklama Başlangıç Tarihi: <font style="color: red;">*</font></div>
-											<div><input type="date" id="inp_check-in_date" name="inp_check-in_date" area="area2" class="style5" style="width: 100%; height: 30px;" /></div>
+											<div id="div_lbl25" class="lbl_norm2" alert="lbl_alrt2">Konaklama Başlangıç Tarihi: <font style="color: red;">*</font></div>
+											<div><input type="date" id="inp_check-in_date" name="inp_check-in_date" label="div_lbl25" area="area2" action="go" class="style5" style="width: 100%; height: 30px;" /></div>
 										</div>
 										<div style="height: 58px;">
-											<div id="div_lbl26" class="lbl_norm2">Konaklama Bitiş Tarihi:</div>
-											<div><input type="date" id="inp_check-out_date" name="inp_check-out_date" area="area2" class="style5" style="width: 100%; height: 30px;" /></div>
+											<div id="div_lbl26" class="lbl_norm2" alert="lbl_alrt2">Konaklama Bitiş Tarihi:</div>
+											<div><input type="date" id="inp_check-out_date" name="inp_check-out_date" label="div_lbl26" area="area2" action="go" class="style5" style="width: 100%; height: 30px;" /></div>
 										</div>
 									</div>
 								</div>
 								<div align="right" style="width: 50%;">
 									<div align="left" style="width: 97%;">
 										<div style="height: 110px;">
-											<div id="div_lbl27" class="lbl_norm2">Konaklama Detayları: <font style="color: red;"></font></div>
-											<div><textarea id="txt_accommodation_detail" name="txt_accommodation_detail" area="area2" class="style5" style="width: 100%; height: 88px;"></textarea></div>
+											<div id="div_lbl27" class="lbl_norm2" alert="lbl_alrt2">Konaklama Detayları: <font style="color: red;"></font></div>
+											<div><textarea id="txt_accommodation_detail" name="txt_accommodation_detail" label="div_lbl27" area="area2" action="go" class="style5" style="width: 100%; height: 88px;"></textarea></div>
 										</div>
 									</div>
 								</div>
@@ -1084,7 +1099,7 @@
 						<div id="div_save" hidden>
 							<div style="display: flex; height: 38px;">
 								<div align="right" style="width: 100%;">
-									<input type="button" id="inp_save" class="style5" style="width: 90px; height: 30px; font-weight: bold;" value="Kaydet ⮟" onClick="save_request();" />
+									<input type="button" id="inp_save" area="area2" action="warn" class="style5" style="width: 90px; height: 30px; font-weight: bold;" value="Kaydet ⮟" onClick="save_request($(this));" />
 								</div>
 							</div>
 						</div>
