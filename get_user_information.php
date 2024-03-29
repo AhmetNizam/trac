@@ -1,6 +1,5 @@
 <?php
-	require("params.php");
-	require("functions.php");
+	require("./library.php");
 
 	$user_info = $_SESSION['user_info'];
 	$name = $user_info['name'];

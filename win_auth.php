@@ -1,26 +1,20 @@
 <?php
-	require("params.php");
-	require("functions.php");
+	require("./library.php");
 
-	// LDAP bağlantısı için gerekli bilgiler
-	$ldapHost = "ldap://mlpcare.com";		// Active Directory sunucu adresi
-	$ldapPort = 389;						// LDAP bağlantı portu
-	$ldapDomainName = "MLPCARE";			// LDAP Active Directory Domain Name	
 	$ldapUser = $_GET['username'];			// Active Directory kullanıcı adı
 	$ldapPassword = $_GET['password'];		// Active Directory kullanıcı şifresi
-
-	// Active Directory DN
-	$dn = "DC=mlpcare,DC=com";
 	$filter = "sAMAccountName=" . $ldapUser;
-	$attr = $_PARAM['ldap_attribute'];
 
-	$user_info = get_ldap_information($ldapHost, $ldapPort, $ldapDomainName, $ldapUser, $ldapPassword, $dn, $filter, $attr);
+	$user_info = get_ldap_information($ldapUser, $ldapPassword, $filter);
 
 	if($user_info) {
 		if(handle_user_login($ldapUser, $user_info)) {
 			$_SESSION['username'] = $ldapUser;
 			$_SESSION['password'] = $ldapPassword;
 			$_SESSION['user_info'] = $user_info;
+
+			$_SESSION['approval_authority_name'] = $user_info['name'] . ' ' . $user_info['surname'];
+			$_SESSION['approval_authority_mail'] = $user_info['mail'];
 
 			$err_code = 0;
 			$msg = 'Kullanıcı doğrulama başarılı';

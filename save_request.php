@@ -1,6 +1,5 @@
 <?php
-	require("check_session.php");
-	require("connect_mysql.php");
+	require("./library.php");
 
 	$conn = get_mysql_connection();
 

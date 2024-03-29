@@ -1,5 +1,5 @@
 <?php
-	require("check_session.php");
+	require("./library.php");
 
 	$uuid = $_GET['uuid'] ?? '';
 

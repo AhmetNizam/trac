@@ -1,10 +1,6 @@
 <?php
-	session_start();
-
-	require("connect_mysql.php");
-
 	function set_null($variable) {
-		if((empty($variable) || $variable == '') && $variable != 0) {
+		if(empty($variable) || $variable == '' || $variable == 0) {
 			return null;
 		} else {
 			return $variable;
@@ -29,8 +25,10 @@
 		return $fullname;
 	}
 
-	function get_user_info_from_ad($ldapConn, $dn, $filter, $attr) {
-		$result = ldap_search($ldapConn, $dn, $filter, $attr); // or exit("LDAP sunucusunda arama yapılamıyor.");
+	function get_user_info_from_ad($ldapConn, $filter) {
+		global $_PARAM;
+
+		$result = ldap_search($ldapConn, $_PARAM['ldapBase'], $filter, $_PARAM['ldapAttributes']); // or exit("LDAP sunucusunda arama yapılamıyor.");
 
 		if($result) {
 			$entries = ldap_get_entries($ldapConn, $result);
@@ -74,7 +72,7 @@
 				if(array_key_exists('manager', $entries)) {
 					// echo "<b>manager</b>\r";
 					$filter = "CN=" . substr($entries['manager'][0], 3, strpos($entries['manager'][0], ',') - 3);
-					$manager_info = get_user_info_from_ad($ldapConn, $dn, $filter, $attr);
+					$manager_info = get_user_info_from_ad($ldapConn, $filter);
 				}
 
 				$fullname = resolve_name_surname($displayname, $surname);
@@ -88,9 +86,11 @@
 		}
 	}
 
-	function get_ldap_information($ldapHost, $ldapPort, $ldapDomainName, $ldapUser, $ldapPassword, $dn, $filter, $attr) {
+	function get_ldap_information($ldapUser, $ldapPassword, $filter) {
+		global $_PARAM;
+
 		// LDAP bağlantısını oluştur
-		$ldapConn = ldap_connect($ldapHost, $ldapPort);
+		$ldapConn = ldap_connect($_PARAM['ldapHost'], $_PARAM['ldapPort']);
 
 		if($ldapConn) {
 			// echo("LDAP bağlantısı başarılı.\r");
@@ -100,9 +100,9 @@
 			ldap_set_option($ldapConn, LDAP_OPT_REFERRALS, 0);
 
 			// Kullanıcı doğrulama
-			$ldapBind = ldap_bind($ldapConn, $ldapDomainName . '\\' . $ldapUser, $ldapPassword);
+			$ldapBind = ldap_bind($ldapConn, $_PARAM['ldapDomainName'] . '\\' . $ldapUser, $ldapPassword);
 
-			$user_info = get_user_info_from_ad($ldapConn, $dn, $filter, $attr);
+			$user_info = get_user_info_from_ad($ldapConn, $filter);
 
 			// LDAP bağlantısını kapat
 			ldap_close($ldapConn);

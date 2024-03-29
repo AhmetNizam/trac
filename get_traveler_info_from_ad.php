@@ -1,20 +1,11 @@
 <?php
-	require("params.php");
-	require("functions.php");
+	require("./library.php");
 
-	// LDAP bağlantısı için gerekli bilgiler
-	$ldapHost = "ldap://mlpcare.com";		// Active Directory sunucu adresi
-	$ldapPort = 389;						// LDAP bağlantı portu
-	$ldapDomainName = "MLPCARE";			// LDAP Active Directory Domain Name	
 	$ldapUser = $_SESSION['username'];		// Active Directory kullanıcı adı
 	$ldapPassword = $_SESSION['password'];	// Active Directory kullanıcı şifresi
-
-	// Active Directory DN
-	$dn = "DC=mlpcare,DC=com";
 	$filter = "sAMAccountName=" . str_replace('@mlpcare.com', '', $_GET['mail']);
-	$attr = $_PARAM['ldap_attribute'];
 
-	$traveler_info = get_ldap_information($ldapHost, $ldapPort, $ldapDomainName, $ldapUser, $ldapPassword, $dn, $filter, $attr);
+	$traveler_info = get_ldap_information($ldapUser, $ldapPassword, $filter);
 
 	if($traveler_info) {
 ?>

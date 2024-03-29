@@ -1,6 +1,5 @@
 <?php
-	require("check_session.php");
-	require("connect_mysql.php");
+	require("./library.php");
 
 	$table_name = $_GET['table_name'];
 	$field_name = (($_GET['field_name'] ?? '') !== '') ? $_GET['field_name'] : "NAME";

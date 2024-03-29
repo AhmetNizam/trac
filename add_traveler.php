@@ -1,5 +1,5 @@
 <?php
-	require("functions.php");
+	require("./library.php");
 
 	$status = '1';
 
@@ -22,17 +22,20 @@
 
 	unset($traveler);
 
-	$request_date = $_GET['inp_request_date'];
+	$request_date = date('d.m.Y');
 	$uuid = $_GET['inp_uuid'];
 	$requester_type = $_GET['sel_requester_type'];
 
 	if($requester_type < 3) {
 		$traveler_type = 1;
+		$traveler_type_name = 'Personel';
 	} else if($requester_type == 3) {
 		$traveler_type = 2;
+		$traveler_type_name = 'Misafir';
 	}
 
 	$traveler['typeid'] = $traveler_type;
+	$traveler['typename'] = $traveler_type_name;
 	$traveler['name'] = $_GET['inp_name'];
 	$traveler['surname'] = $_GET['inp_surname'];
 	$traveler['birthdate'] = $_GET['inp_birthdate'];

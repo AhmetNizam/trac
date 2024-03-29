@@ -6,7 +6,7 @@
 			<alert>"Kimlik No" boş bırakılamaz!</alert>
 		</input>
 		<input id="inp_identityno">
-			<condition><![CDATA[$('#inp_route').val() == '2' && $('#inp_identityno').val() == '' && $('#inp_identityno').val() == '']]></condition>
+			<condition><![CDATA[$('#inp_route').val() == '2' && $('#inp_passportno').val() == '']]></condition>
 			<alert>"Kimlik No" ve "Pasaport No" alanlarından en az biri doldurulmalıdır!</alert>
 		</input>
 		<input id="inp_identityno">

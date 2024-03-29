@@ -1,14 +1,20 @@
 <?php
-	require("functions.php");
+	require("./library.php");
 
 	$travel['travel_routeid'] = $_GET['inp_route'];
+	$travel['travel_route'] = $_GET['inp_route_name'];
 	$travel['travel_reasonid'] = $_GET['sel_travel_reason'];
+	$travel['travel_reason'] = $_GET['inp_travel_reason'];
 	$travel['from_countryid'] = set_null($_GET['sel_from_country'] ?? '');
+	$travel['from_country'] = $_GET['inp_from_country'];
 	$travel['from_locationid'] = set_null($_GET['sel_from_location'] ?? '');
+	$travel['from_location'] = $_GET['inp_from_location'];
 	$travel['from_cityid'] = set_null($_GET['sel_from_city'] ?? '');
 	$travel['from_city'] = set_null($_GET['inp_from_city'] ?? '');
 	$travel['to_countryid'] = set_null($_GET['sel_to_country'] ?? '');
+	$travel['to_country'] = $_GET['inp_to_country'];
 	$travel['to_locationid'] = set_null($_GET['sel_to_location'] ?? '');
+	$travel['to_location'] = $_GET['inp_to_location'];
 	$travel['to_cityid'] = set_null($_GET['sel_to_city'] ?? '');
 	$travel['to_city'] = set_null($_GET['inp_to_city'] ?? '');
 
@@ -30,9 +36,11 @@
 	if($transportation_on_off) {
 		$transportation['departure_date'] = set_null($_GET['inp_departure_date'] ?? '');
 		$transportation['return_date'] = set_null($_GET['inp_return_date'] ?? '');
-		$transportation['transfer_need_situation'] = set_null($_GET['rb_tns'] ?? '');
+		$transportation['transfer_need_situation'] = set_null($_GET['inp_transfer_need_situation'] ?? '');
+		$transportation['transfer_need_situation_name'] = $_GET['inp_transfer_need_situation_name'];
 		$transportation['transfer_need_detail'] = $transportation['transfer_need_situation'] ? set_null($_GET['inp_transfer_need_detail'] ?? '') : null;
 		$transportation['transportation_modeid'] = set_null($_GET['sel_transportation_mode'] ?? '');
+		$transportation['transportation_mode'] = $_GET['inp_transportation_mode'];
 		$transportation['transportation_detail'] = set_null($_GET['txt_transportation_detail'] ?? '');
 	} else {
 		$transportation['departure_date'] = null;

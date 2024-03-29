@@ -2,7 +2,8 @@
 /* CSS Document */
 @font-face {
 	font-family: 'Century Gothic';
-	src: url('../font/gothic.ttf');
+	src: url('../font/gothic.ttf'),
+		 url('https://raw.githubusercontent.com/ahmetnizam/trac/master/font/gothic.ttf');
 	font-weight: normal;
 	font-style: normal;
 }
@@ -20,7 +21,35 @@
  @keyframes blinker {  
 	50% { opacity: 0; }
 }
+body, input, select, textarea {
+	font-family: 'Century Gothic';
+}
+.main_frame {
+	width: 900px;
+	border: groove;
+	font-size: 13px;
+	color: #0E0E76;
+	text-decoration: none;
+}
+.gray_line {
+	height: 8px;
+	border-top: solid 2px #CDCDCD;
+}
+.gray_frame {
+	border: solid 2px #CDCDCD;
+}
+.blue_line {
+	height: 17px;
+	border-bottom: solid 2px blue;
+}
+.inp {
+	width: 100%;
+	height: 30px;
+	font-size: 12px;
+	color: #000000;
+}
 .radio_frame {
+	height: 28px;
 	border: 1px;
 	border-style: solid;
 	border-color: #767676;
@@ -30,34 +59,81 @@
 .radio_frame:hover {
 	border-color: #767676;
 }
+.radio_group {
+	display: flex;
+	height: 79%;
+	padding-top: 4px;
+	border: solid 1px transparent;
+}
+.btn, .btn_green, .btn_yellow, .btn_red {
+	width: 90px;
+	height: 30px;
+	font-size: 12px;
+	font-weight: bold;
+	border: solid 1px black;
+	border-radius: 3px;
+}
+.btn {
+	color: black;
+	background-color: #E7E7E7;
+}
+.btn:hover {
+	background-color: #DCDCDC;
+}
+.btn:active {
+	background-color: #F1F1F1;
+}
+.btn_green {
+	color: white;
+	background-color: green;
+}
+.btn_green:hover {
+	background-color: #005000;
+}
+.btn_green:active {
+	background-color: #00B000;
+}
+.btn_yellow {
+	color: darkblue;
+	background-color: yellow;
+}
+.btn_yellow:hover {
+	background-color: #E0E000;
+}
+.btn_yellow:active {
+	background-color: #FFFFAA;
+}
+.btn_red {
+	color: white;
+	background-color: red;
+}
+.btn_red:hover {
+	background-color: #D00000;
+}
+.btn_red:active {
+	background-color: #FF5E5E;
+}
 .style1 {
 	font-size: 12px;
-	font-family: Century Gothic;
 	font-weight: bold;
 	color: #FFFFFF;
 }
 .style2 {
 	font-size: 14px;
-	font-family: Century Gothic;
 	font-weight: bold;
 	color: #0E0E76;
 }
 .style3 {
 	font-size: 18px;
-	font-family: Century Gothic;
 	color: #0E0E76;
 }
 .style4 {
-	font-family: Century Gothic;
 	font-size: 13px;
 	color: #0E0E76;
 	text-decoration: none;
-//	height: 22px;
 }
 .style5 {
 	font-size: 12px;
-	font-family: Century Gothic;
-//	font-weight: bold;
 	color: #000000;
 }
 .style6 {
@@ -68,7 +144,6 @@
 }
 .style8 {
 	font-size: 12px;
-	font-family: Century Gothic;
 	color: #0E0E76;
 	text-decoration: none;
 	background-color: #73CBF6;
@@ -77,14 +152,12 @@
 }
 .style9 {
 	font-size: 12px;
-	font-family: Century Gothic;
 	text-decoration: none;
 	text-align: left;
 	padding: 2px;
 }
 .style10 {
 	font-size: 12px;
-	font-family: Century Gothic;
 	color: #0E0E76;
 	text-decoration: none;
 	background-color: #E7B96D;
@@ -93,7 +166,6 @@
 }
 .style11 {
 	font-size: 12px;
-	font-family: Century Gothic;
 	color:#0E0E76;
 	background-color: #73CBF6;
 	text-align: left;
@@ -105,19 +177,16 @@
 }
 .title1 {
 	font-size: 11px;
-	font-family: Century Gothic;
  	font-weight: bold;
 	background-color: #F7AA8C;
 }
 .title2 {
 	font-size: 11px;
-	font-family: Century Gothic;
  	font-weight: bold;
 	background-color: #62C4F4;
 }
 .item1 {
 	font-size: 10px;
-	font-family: Century Gothic;
 	font-weight: bold;
 	color: #740204;
 }
@@ -131,7 +200,6 @@
 }
 .item2 {
 	font-size: 10px;
-	font-family: Century Gothic;
 	font-weight: bold;
 	color: #064360;
 }
@@ -145,40 +213,37 @@
 }
 .item3 {
 	font-size: 10px;
-	font-family: Century Gothic;
 	font-weight: bold;
 }
 .valign {
-//	position: fixed;
 	width: 100px;
 	height: 50px;
 	left: 50%;
 	top: 50%;
-//	-webkit-transform: translate(-50%, -50%);
 	transform: translate(-50%, -50%);
 }
 .menu {
-//	width: 100%;
-	font-family: Century Gothic;
-//	font-size: 20px;
-//	font-weight: bold;
-	color: #000;
-//	line-height: 30px;
-//	text-align: center;
-//	cursor: pointer;
+	color: #000000;
 	display: block;
 	border: 1px solid #0D79AE;
 	border-radius: 10px;
-//	border-top: none;
 	padding-left: 0px;
-//	background: local;
-	background: url("../images/body.png");
-//	background-size: contain;
-//	background-repeat: no-repeat;
 }
-.menu:hover {
-//	background: url("../images/button_extra12.png");
-//	background: url("../images/button_extra1_active.png");
+.heading {
+	height: 20px;
+	border-bottom: solid 2px red;
+	font-size: 15px;
+	font-weight: bold;
+}
+.subheading {
+	height: 17px;
+	border-bottom: solid 2px blue;
+	text-align: left;
+	font-weight: bold;
+}
+.databox {
+	width: 97%;
+	height: 38px;
 }
 .lbl_norm1 {
 	font-weight: bold;
@@ -194,13 +259,13 @@
 	font-weight: bold;
 	margin-top: 7px;
 	color: red;
-	animation: blinker 0.9s linear infinite; //efekti veren kod
+	animation: blinker 0.9s linear infinite;
 }
 .lbl_alrt2 {
 	height: 17px;
 	font-weight: bold;
 	color: red;
-	animation: blinker 0.9s linear infinite; //efekti veren kod
+	animation: blinker 0.9s linear infinite;
 }
 .trv_lst {
 	display: flex;
@@ -215,60 +280,57 @@
 .trv_lst_frm2 {
 	width: 10%;
 	background-color: #F1F1F1;
-//	border-left-width: 1px;
-//	border-left-color: red;
 }
-.trv_tbl1 {
-	height: 20px;
+.trv_tbl1, .trv_tbl2, .a_trv_tbl {
 	font-size: 12px;
 	color: #0E0E76;
-	white-space: nowrap;
 	border-spacing: 0px;
 	border-width: 1px;
 	border-style: solid;
+}
+.trv_tbl1 {
+	height: 20px;
+	white-space: nowrap;
 	border-color: #FF6700;
 }
 .trv_tbl2 {
 	width: 100%;
-//	height: 20px;
-	font-size: 12px;
-	color: #0E0E76;
-	border-spacing: 0px;
-	border-width: 1px;
-	border-style: solid;
 	border-color: #FF6700;
 }
+.a_trv_tbl {
+	border-color: #000000;
+}
 .trv_thead {
-//	height: 20px;
 	text-align: center;
 	background: #D7D7D7;
 	font-weight: bold;
 	color: #0E0E76;
 }
 .trv_tbody {
-//	height: 20px;
-//	text-align: center;
 	background: #FFFFFF;
-//	font-weight: bold;
-//	color: #0E0E76;
+}
+.trv_cell_th, .trv_cell_tb, .a_trv_cell_th, .a_trv_cell_tb  {
+	height: 25px;
+	padding-left: 5px;
+	padding-right: 5px;
+	border-width: 1px;
+	border-style: solid;
 }
 .trv_cell_th {
-	height: 25px;
-	padding-left: 5px;
-	padding-right: 5px;
-	border-width: 1px;
-	border-style: solid;
-	border-color: #FF6700;
 	text-align: center;
+	border-color: #FF6700;
 }
 .trv_cell_tb {
-	height: 25px;
-	padding-left: 5px;
-	padding-right: 5px;
-	border-width: 1px;
-	border-style: solid;
-	border-color: #FF6700;
 	text-align: left;
+	border-color: #FF6700;
+}
+.a_trv_cell_th {
+	text-align: center;
+	border-color: #000000;
+}
+.a_trv_cell_tb {
+	text-align: left;
+	border-color: #000000;
 }
 .trv_cell_img {
 	height: 20px;
