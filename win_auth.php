@@ -1,5 +1,9 @@
 <?php
-	require("./library.php");
+	require("./params.php");
+	require("./connect_mysql.php");
+	require("./functions.php");
+
+	session_start();
 
 	$ldapUser = $_GET['username'];			// Active Directory kullanıcı adı
 	$ldapPassword = $_GET['password'];		// Active Directory kullanıcı şifresi
@@ -13,11 +17,19 @@
 			$_SESSION['password'] = $ldapPassword;
 			$_SESSION['user_info'] = $user_info;
 
-			$_SESSION['approval_authority_name'] = $user_info['name'] . ' ' . $user_info['surname'];
-			$_SESSION['approval_authority_mail'] = $user_info['mail'];
-
 			$err_code = 0;
 			$msg = 'Kullanıcı doğrulama başarılı';
+/*
+			if(authorized_person_id($_SESSION['userid']) > 0) {
+				// Yetkilendirme yapılmış
+				$err_code = 0;
+				$msg = 'Kullanıcı doğrulama başarılı';
+			} else {
+				// Yetkilendirme yapılmamış
+				$err_code = 3;
+				$msg = 'Kullanıcı doğrulama başarılı\nFakat yetkilendirme yapılmamış';
+			}
+*/
 		} else {
 			$err_code = 2;
 			$msg = 'Kullanıcı giriş kaydı başarısız';

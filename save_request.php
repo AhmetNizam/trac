@@ -11,9 +11,11 @@
 		$accommodation_info = $_SESSION['request']['accommodation_info'];
 
 		// Prosedürü çağır (Request ekle)
-		$stmt = $conn->prepare("CALL ADD_REQUEST(:userid, :routeid, :reasonid, :fcountryid, :flocationid, :fcityid, :fcityname, :tcountryid, :tlocationid, :tcityid, :tcityname, 
+		$stmt = $conn->prepare("CALL ADD_REQUEST(:uuid, :userid, :routeid, :reasonid, :fcountryid, :flocationid, :fcityid, :fcityname, :tcountryid, :tlocationid, :tcityid, :tcityname, 
 												 :transportation, :departuredate, :returndate, :transferneedsituation, :transferneeddetail, :transportationmodeid, :transportatindetail,
 												 :accommodation, :checkindate, :checkoutdate, :accommodationdetail, @oRequestId)");
+
+		$stmt->bindParam(':uuid', $_SESSION['request']['uuid'], PDO::PARAM_STR);
 		$stmt->bindParam(':userid', $_SESSION['userid'], PDO::PARAM_INT);
 		$stmt->bindParam(':routeid', $travel_info['travel_routeid'], PDO::PARAM_INT);
 		$stmt->bindParam(':reasonid', $travel_info['travel_reasonid'], PDO::PARAM_INT);
@@ -48,8 +50,10 @@
 
 		foreach($_SESSION['request']['traveler_list'] as $traveler) {
 			// Prosedürü çağır (Traveler kontrol et / yoksa ekle)
-			$stmt = $conn->prepare("CALL ADD_TRAVELER(:typeid, :name, :surname, :birthdate, :identityno, :passportno, :phone, :mail,
+			$stmt = $conn->prepare("CALL ADD_TRAVELER(:userid, :typeid, :name, :surname, :birthdate, :identityno, :passportno, :phone, :mail,
 													  :position, :positionid, :department, :departmentid, :location, :locationid, @oTravelerId)");
+
+			$stmt->bindParam(':userid', $_SESSION['userid'], PDO::PARAM_INT);
 			$stmt->bindParam(':typeid', $traveler['typeid'], PDO::PARAM_INT);
 			$stmt->bindParam(':name', $traveler['name'], PDO::PARAM_STR);
 			$stmt->bindParam(':surname', $traveler['surname'], PDO::PARAM_STR);
@@ -88,9 +92,27 @@
 
 			$requestdetailid = $row['requestdetailid'];
 		}
+		
+		if($requestid && $requestdetailid) {
+			// Prosedürü çağır (Request_Approver_Detail ekle)
+			$stmt = $conn->prepare("CALL ADD_REQUEST_APPROVER_DETAIL(:request_uuid, :request_approver_uuid, :userid, @oRequestApproverDetailId)");
+			$stmt->bindParam(':request_uuid', $_SESSION['request']['uuid'], PDO::PARAM_STR);
+			$stmt->bindParam(':request_approver_uuid', $_SESSION['request']['approver']['uuid'], PDO::PARAM_STR);
+			$stmt->bindParam(':userid', $_SESSION['userid'], PDO::PARAM_INT);
+			$stmt->execute();
+			$stmt->closeCursor();
+
+			// OUT parametresini al (oRequestApproverDetailId)
+			$stmt = $conn->query("SELECT @oRequestApproverDetailId AS requestapproverdetailid");
+			$row = $stmt->fetch(PDO::FETCH_ASSOC);
+			$stmt->closeCursor();
+
+			$requestapproverdetailid = $row['requestapproverdetailid'];
+		}
+		$conn = null;
 	}
 
-	if($requestid && $requestdetailid) {
+	if($requestid && $requestdetailid && $requestapproverdetailid) {
 ?>
 {"Rows":[{
 	"status":"1",

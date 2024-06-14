@@ -3,7 +3,7 @@
 
 	$ldapUser = $_SESSION['username'];		// Active Directory kullanıcı adı
 	$ldapPassword = $_SESSION['password'];	// Active Directory kullanıcı şifresi
-	$filter = "sAMAccountName=" . str_replace('@mlpcare.com', '', $_GET['mail']);
+	$filter = "sAMAccountName=" . resolve_account_name($_GET['mail']);
 
 	$traveler_info = get_ldap_information($ldapUser, $ldapPassword, $filter);
 
