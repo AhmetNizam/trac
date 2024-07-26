@@ -19,17 +19,6 @@
 
 			$err_code = 0;
 			$msg = 'Kullanıcı doğrulama başarılı';
-/*
-			if(authorized_person_id($_SESSION['userid']) > 0) {
-				// Yetkilendirme yapılmış
-				$err_code = 0;
-				$msg = 'Kullanıcı doğrulama başarılı';
-			} else {
-				// Yetkilendirme yapılmamış
-				$err_code = 3;
-				$msg = 'Kullanıcı doğrulama başarılı\nFakat yetkilendirme yapılmamış';
-			}
-*/
 		} else {
 			$err_code = 2;
 			$msg = 'Kullanıcı giriş kaydı başarısız';

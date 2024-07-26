@@ -135,16 +135,20 @@
 		</input>
 	</area2>
 	<area3 focus="btn_add_reservation">
+		<input id="sel_requestid">
+			<condition><![CDATA[$('#sel_requestid').val() == '']]></condition>
+			<alert>"" boş bırakılamaz!</alert>
+		</input>
 		<input id="sel_departure_transportation_mode">
 			<condition><![CDATA[$('#sel_departure_transportation_mode').val() == '']]></condition>
 			<alert>"" boş bırakılamaz!</alert>
 		</input>
-		<input id="inp_departure_port_name">
-			<condition><![CDATA[$('#inp_departure_port_name').val() == '']]></condition>
+		<input id="inp_departure_port">
+			<condition><![CDATA[$('#inp_departure_port').val() == '']]></condition>
 			<alert>"" boş bırakılamaz!</alert>
 		</input>
-		<input id="inp_departure_company_name">
-			<condition><![CDATA[$('#inp_departure_company_name').val() == '']]></condition>
+		<input id="inp_departure_company">
+			<condition><![CDATA[$('#inp_departure_company').val() == '']]></condition>
 			<alert>"" boş bırakılamaz!</alert>
 		</input>
 		<input id="inp_departure_pnr_code">
@@ -167,12 +171,12 @@
 			<condition><![CDATA[$('#sel_return_transportation_mode').val() == '']]></condition>
 			<alert>"" boş bırakılamaz!</alert>
 		</input>
-		<input id="inp_return_port_name">
-			<condition><![CDATA[$('#inp_return_port_name').val() == '']]></condition>
+		<input id="inp_return_port">
+			<condition><![CDATA[$('#inp_return_port').val() == '']]></condition>
 			<alert>"" boş bırakılamaz!</alert>
 		</input>
-		<input id="inp_return_company_name">
-			<condition><![CDATA[$('#inp_return_company_name').val() == '']]></condition>
+		<input id="inp_return_company">
+			<condition><![CDATA[$('#inp_return_company').val() == '']]></condition>
 			<alert>"" boş bırakılamaz!</alert>
 		</input>
 		<input id="inp_return_pnr_code">
@@ -216,4 +220,16 @@
 			<alert>"" boş bırakılamaz!</alert>
 		</input>
 	</area5>
+	<area6 focus="btn_ok">
+		<input id="txt_explanation">
+			<condition><![CDATA[$('#txt_explanation').val() == '']]></condition>
+			<alert>"" boş bırakılamaz!</alert>
+		</input>
+	</area6>
+    <area7 focus="btn_ok">
+		<input id="txt_explanation">
+			<condition><![CDATA[$('#txt_explanation').val() == '']]></condition>
+			<alert>"" boş bırakılamaz!</alert>
+		</input>
+	</area7>
 </form>

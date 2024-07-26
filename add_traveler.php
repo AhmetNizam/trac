@@ -49,9 +49,9 @@
 	$traveler['location'] = set_null($_GET['inp_location'] ?? '');
 	$traveler['locationid'] = set_null($_GET['sel_location'] ?? '');
 
-	$_SESSION['request']['uuid'] = gen_uuid();
+	$_SESSION['request']['uuid'] = '';
 	$_SESSION['request']['request_date'] = date('d.m.Y H:i:s');
-	$_SESSION['request']['approver']['uuid'] = gen_uuid();
+	$_SESSION['request']['approver']['uuid'] = '';
 	$_SESSION['request']['traveler_list'][$uuid] = $traveler;
 
 record_found:

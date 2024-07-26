@@ -2,12 +2,12 @@
 	require("./library.php");
 
 	$status = '0';
-	$requestid = $_GET['inp_requestid'];
+	$requestid = $_GET['sel_requestid'];
 
 	$conn = get_mysql_connection();
 
 	if($conn) {
-		$stmt = $conn->prepare(" SELECT TRANSPORTATION AS transportation, ACCOMMODATION AS accommodation
+		$stmt = $conn->prepare(" SELECT GET_ROUTE_NAME(ROUTE_ID) AS route, TRANSPORTATION AS transportation, ACCOMMODATION AS accommodation
 								 FROM REQUEST
 								 WHERE ID = :requestid ");
 
@@ -16,8 +16,10 @@
 		$row = $stmt->fetch(PDO::FETCH_ASSOC);
 		$stmt->closeCursor();
 
+		$route = $row['route'];
 		$transportation_on_off = $row['transportation'];
 		$accommodation_on_off = $row['accommodation'];
+		$conn = null;
 
 		if($transportation_on_off) {
 			$departure['transportation_modeid'] = set_null($_GET['sel_departure_transportation_mode'] ?? '');
@@ -72,21 +74,59 @@
 		}
 
 		$_SESSION['reservation']['uuid'] = gen_uuid();
-		$_SESSION['reservation']['reservation_date'] = date('d.m.Y');
+		$_SESSION['reservation']['reservation_date'] = date('d.m.Y H:i:s');
 		$_SESSION['reservation']['requestid'] = $requestid;
+		$_SESSION['reservation']['route'] = $route;
 		$_SESSION['reservation']['transportation_on_off'] = $transportation_on_off;
 		$_SESSION['reservation']['transportation_info']['departure'] = $departure;
 		$_SESSION['reservation']['transportation_info']['return'] = $return;
 		$_SESSION['reservation']['accommodation_on_off'] = $accommodation_on_off;
 		$_SESSION['reservation']['accommodation_info'] = $accommodation;
-
-		$conn = null;
+		
+		
+		$reservation['ID'] = '';
+		$reservation['CREATION_TIME'] = $_SESSION['reservation']['reservation_date'];
+		$reservation['USER'] = '';
+		$reservation['STATUS'] = '';
+		$reservation['ROUTE'] = $_SESSION['reservation']['route'];
+		$reservation['TRANSPORTATION'] = $_SESSION['reservation']['transportation_on_off'] ;
+		$reservation['DEPARTURE_TRANSPORTATION_MODE'] = $_SESSION['reservation']['transportation_info']['departure']['transportation_mode'];
+		$reservation['DEPARTURE_PORT'] = $_SESSION['reservation']['transportation_info']['departure']['port'];
+		$reservation['DEPARTURE_COMPANY'] = $_SESSION['reservation']['transportation_info']['departure']['company'];
+		$reservation['DEPARTURE_PNR_CODE'] = $_SESSION['reservation']['transportation_info']['departure']['pnr_code'];
+		$reservation['DEPARTURE_TICKET_NUMBER'] = $_SESSION['reservation']['transportation_info']['departure']['ticket_number'];
+		$reservation['DEPARTURE_TICKET_PRICE'] = $_SESSION['reservation']['transportation_info']['departure']['ticket_price'];
+		$reservation['DEPARTURE_CAR_LICENSE_PLATE'] = $_SESSION['reservation']['transportation_info']['departure']['car_license_plate'];
+		$reservation['DEPARTURE_DATE'] = $_SESSION['reservation']['transportation_info']['departure']['date'];
+		$reservation['RETURN_TRANSPORTATION_MODE'] = $_SESSION['reservation']['transportation_info']['return']['transportation_mode'];
+		$reservation['RETURN_PORT'] = $_SESSION['reservation']['transportation_info']['return']['port'];
+		$reservation['RETURN_COMPANY'] = $_SESSION['reservation']['transportation_info']['return']['company'];
+		$reservation['RETURN_PNR_CODE'] = $_SESSION['reservation']['transportation_info']['return']['pnr_code'];
+		$reservation['RETURN_TICKET_NUMBER'] = $_SESSION['reservation']['transportation_info']['return']['ticket_number'];
+		$reservation['RETURN_TICKET_PRICE'] = $_SESSION['reservation']['transportation_info']['return']['ticket_price'];
+		$reservation['RETURN_CAR_LICENSE_PLATE'] = $_SESSION['reservation']['transportation_info']['return']['car_license_plate'];
+		$reservation['RETURN_DATE'] = $_SESSION['reservation']['transportation_info']['return']['date'];
+		$reservation['ACCOMMODATION'] = $_SESSION['reservation']['accommodation_on_off'];
+		$reservation['CHECK-IN_DATE'] = $_SESSION['reservation']['accommodation_info']['check-in_date'];
+		$reservation['CHECK-OUT_DATE'] = $_SESSION['reservation']['accommodation_info']['check-out_date'];
+		$reservation['HOTEL_NAME'] = $_SESSION['reservation']['accommodation_info']['hotel_name'];
+		
+		
+		$_SESSION['display']['reservation'] = $reservation;
+		
+		
 		$status = '1';
+		$message = 'Kayıt oluşturuldu.';
+	} else {
+		$status = '0';
+		$message = 'Talebi onaylayacak herhangi bir yetkili tanımlanmamış.';
 	}
 ?>
 {"Rows":[{
-	"status":"<?php echo $status; ?>"
+	"status":"<?php echo $status; ?>",
+	"message":"<?php echo $message; ?>"
 }],"TableName":"Table",
 "Columns":{
-	"0":"status"
+	"0":"status",
+	"1":"message"
 }}

@@ -4,6 +4,7 @@
 	$conn = get_mysql_connection();
 
 	if($conn) {
+		$_SESSION['request']['uuid'] = gen_uuid();
 		$travel_info = $_SESSION['request']['travel_info'];
 		$transportation_on_off = $_SESSION['request']['transportation_on_off'];
 		$transportation_info = $_SESSION['request']['transportation_info'];
@@ -92,12 +93,17 @@
 
 			$requestdetailid = $row['requestdetailid'];
 		}
-		
+
 		if($requestid && $requestdetailid) {
+			$request_approver_detail_uuid = '';
+			$new_uuid = gen_uuid();
+			$_SESSION['request']['approver']['uuid'] = $new_uuid;
+
 			// Prosedürü çağır (Request_Approver_Detail ekle)
-			$stmt = $conn->prepare("CALL ADD_REQUEST_APPROVER_DETAIL(:request_uuid, :request_approver_uuid, :userid, @oRequestApproverDetailId)");
+			$stmt = $conn->prepare("CALL ADD_REQUEST_APPROVER_DETAIL(:request_uuid, :request_approver_detail_uuid, :new_uuid, :userid, @oRequestApproverDetailId)");
 			$stmt->bindParam(':request_uuid', $_SESSION['request']['uuid'], PDO::PARAM_STR);
-			$stmt->bindParam(':request_approver_uuid', $_SESSION['request']['approver']['uuid'], PDO::PARAM_STR);
+			$stmt->bindParam(':request_approver_detail_uuid', $request_approver_detail_uuid, PDO::PARAM_STR);
+			$stmt->bindParam(':new_uuid', $new_uuid, PDO::PARAM_STR);
 			$stmt->bindParam(':userid', $_SESSION['userid'], PDO::PARAM_INT);
 			$stmt->execute();
 			$stmt->closeCursor();

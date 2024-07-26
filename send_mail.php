@@ -11,31 +11,6 @@
 	require("./mail/PHPMailer/src/SMTP.php");
 
 	if($_SERVER["REQUEST_METHOD"] == "POST") {
-
-		$authorized_person['name'] = $_SESSION['approval_authority_name'];
-		$authorized_person['mail'] = $_SESSION['approval_authority_mail'];
-		$approval_authorities[] = $authorized_person;
-
-		$conn = get_mysql_connection();
-
-		if($conn) {
-			// Prosedürü çağır (User Id bul)
-			$stmt = $conn->prepare("SELECT U.NAME AS name, U.SURNAME AS surname, U.EMAIL AS mail
-									FROM AUTHORIZED_PERSON_GROUP APG
-									JOIN USER U ON U.ID = APG.USER_ID
-									WHERE APG.AUTHORIZED_PERSON_ID = :authorized_person_id");
-			$stmt->bindParam(':authorized_person_id', $_SESSION['approval_authority_id'], PDO::PARAM_INT);
-			$stmt->execute();
-			$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			$stmt->closeCursor();
-
-			foreach($rows as $row) {
-				$approval_authorities[] = $row;
-			}
-
-			$conn = null;
-		}
-
 		$mail = new PHPMailer();
 		try {
 			//Server settings
@@ -59,16 +34,19 @@
 			//Recipients
 			$mail->setFrom($_PARAM['mailSenderMail'], $_PARAM['mailSenderName']);
 
-			foreach($approval_authorities as $approval_authority) {
-				$mail->addAddress($approval_authority['mail'], $approval_authority['name']);
-			}
-
 			//Content
 			$mail->isHTML(true);
 			$mail->CharSet = 'utf-8';
 			$mail->Subject = 'Ulaşım ve Konaklama Talebi';
-			$mail->Body = $_POST['mailBody'];
-			$mail->send();
+
+			$mail_recipient_list = $_SESSION['mail_recipient_list'];
+
+			foreach($mail_recipient_list as $mail_recipient) {
+				$mail->clearAddresses();
+				$mail->addAddress($mail_recipient['mail'], $mail_recipient['name']);
+				$mail->Body = str_replace('link=user_uuid-request_uuid-request_approver_detail_uuid', 'link=' . $mail_recipient['uuid'] . '-' . $_SESSION['request']['uuid'] . '-' . $_SESSION['request']['approver']['uuid'], $_POST['mailBody']);
+				$mail->send();
+			}
 
 			echo 'Mesaj gönderildi';
 		} catch (Exception $e) {

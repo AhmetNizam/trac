@@ -163,8 +163,11 @@
 		$conn = get_mysql_connection();
 
 		if($conn) {
+			$uuid = gen_uuid();
+
 			// Prosedürü çağır (User kontrol et / yoksa ekle)
-			$stmt = $conn->prepare("CALL HANDLE_USER_LOGIN(:username, :name, :surname, :mail, :position, :department, :location, @oUserId, @oAuthorizedPerson)");
+			$stmt = $conn->prepare("CALL HANDLE_USER_LOGIN(:uuid, :username, :name, :surname, :mail, :position, :department, :location, @oUserId, @oUUID, @oAuthorizePerson, @oExecutivePerson)");
+			$stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
 			$stmt->bindParam(':username', $username, PDO::PARAM_STR);
 			$stmt->bindParam(':name', $user_info['name'], PDO::PARAM_STR);
 			$stmt->bindParam(':surname', $user_info['surname'], PDO::PARAM_STR);
@@ -176,12 +179,14 @@
 			$stmt->closeCursor();
 
 			// OUT parametresini al (oUserId)
-			$stmt = $conn->query("SELECT @oUserId AS userid, @oAuthorizedPerson AS authorized_person");
+			$stmt = $conn->query("SELECT @oUserId AS userid, @oUUID AS user_uuid, @oAuthorizePerson AS authorize_person, @oExecutivePerson AS executive_person");
 			$row = $stmt->fetch(PDO::FETCH_ASSOC);
 			$stmt->closeCursor();
 
 			$_SESSION['userid'] = $row['userid'];
-			$_SESSION['authorized_person'] = $row['authorized_person'];
+			$_SESSION['user_uuid'] = $row['user_uuid'];
+			$_SESSION['authorize_person'] = $row['authorize_person'];
+			$_SESSION['executive_person'] = $row['executive_person'];
 			
 			// Prosedürü çağır (User giriş kaydı yap)
 			$stmt = $conn->prepare("CALL LOG_LOGIN_ACTIVITY(:userid, @oResult)");
@@ -254,7 +259,7 @@
 
 			if($authorized_person_id > 0) {
 				// Sorgu çalıştır (Authorized Person bilgilerini al)
-				$stmt = $conn->prepare("SELECT NAME AS name, SURNAME AS surname, EMAIL AS mail
+				$stmt = $conn->prepare("SELECT UUID, NAME, SURNAME, EMAIL
 										FROM USER
 										WHERE ID = :authorized_person_id");
 				$stmt->bindParam(':authorized_person_id', $authorized_person_id, PDO::PARAM_INT);
@@ -263,8 +268,9 @@
 				$stmt->closeCursor();
 
 				$_SESSION['approval_authority_id'] = $authorized_person_id;
-				$_SESSION['approval_authority_name'] = $row['name'] . ' ' . $row['surname'];
-				$_SESSION['approval_authority_mail'] = $row['mail'];
+				$_SESSION['approval_authority_uuid'] = $row['UUID'];
+				$_SESSION['approval_authority_name'] = $row['NAME'] . ' ' . $row['SURNAME'];
+				$_SESSION['approval_authority_mail'] = $row['EMAIL'];
 			}
 
 			$conn = null;
