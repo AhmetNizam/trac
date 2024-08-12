@@ -1,7 +1,8 @@
-<?php	if($list_type == '1' || $list_type == '2') { ?>
+<?php   $mail_view = $_GET['mail_view'] ?? '0'; ?>
+<?php	if(($list_type == '1' || $list_type == '2') && $mail_view == '0') { ?>
     <div id="div_row_frame_<?php echo $i; ?>" class="row<?php echo ($i % 2) + 1; ?>">
         <div style="height: 10px;"></div>
-        <div id="div_request_top_<?php echo $i; ?>" style="height: 20px;"<?php if($list_type != '0') { echo ' hidden'; } ?>></div>
+        <div id="div_request_top_<?php echo $i; ?>" style="height: 20px;"<?php if($list_type != '0' && $mail_view == '0') { echo ' hidden'; } ?>></div>
 <?php	} ?>
         <div onClick="slide_request($('#div_request_top_<?php echo $i; ?>'), $('#div_request_<?php echo $i; ?>'));">
             <div class="row_title" style="display: flex;">
@@ -58,7 +59,7 @@
             </div>
             <div style="height: 10px;"></div>
         </div>
-        <div id="div_request_<?php echo $i; ?>"<?php if($list_type == '1' || $list_type == '2') { echo ' hidden'; } ?>>
+        <div id="div_request_<?php echo $i; ?>"<?php if(($list_type == '1' || $list_type == '2') && $mail_view == '0') { echo ' hidden'; } ?>>
             <div class="subheading">Seyahat Edecekler</div>
             <div style="height: 10px;"></div>
             <div align="left" style="overflow: auto;">
@@ -263,14 +264,16 @@
 <?php	} ?>
 <?php	if(($list_type == '1' && $request['STATUS_ID'] == '14') || ($list_type == '2' && ($request['STATUS_ID'] == '11' || $request['STATUS_ID'] == '13' || $request['STATUS_ID'] == '14'))) { ?>
             <div style="height: 10px;"></div>
+<?php		if($request['STATUS_ID'] == '11' || ($request['STATUS_ID'] == '14' && $mail_view == '0')) { ?>
             <div class="subheading" style="height: 2px;"></div>
             <div style="height: 10px;"></div>
+<?php		} ?>
             <form id="form<?php echo $i; ?>" method="post" enctype="multipart/form-data" index="<?php echo $i; ?>">
                 <div id="div_approval_buttons_<?php echo $i; ?>" align="center">
                     <div style="display: flex; width: 100%;">
                         <div style="width: 50%;">
                             <div style="display: flex; justify-content: flex-start;">
-<?php		if($request['STATUS_ID'] == '14') { ?>
+<?php		if($request['STATUS_ID'] == '14' && $mail_view == '0') { ?>
                                 <div>
                                     <input type="button" id="btn_reservation_detail" index="<?php echo $i; ?>" reservationid="<?php echo $request['RESERVATION_ID']; ?>" class="btn_blue" style="width: 220px;" value="Rezervasyon Detaylarını Göster  &#128065;" onClick="toggle_reservation_detail($(this));" />
                                 </div>
@@ -278,9 +281,11 @@
                             </div>
                         </div>
                         <div style="width: 50%;">
+                            <div align="right" style="width: 100%;">
                             <div style="display: flex; justify-content: flex-end;">
 <?php		if($list_type == '2') { ?>
 <?php			if($request['STATUS_ID'] == '11') { ?>
+<?php				if($mail_view == '0') { ?>
                                 <div>
                                     <input type="button" id="btn_reject" index="<?php echo $i; ?>" requestid="<?php echo $request['ID']; ?>" class="btn_red" value="Ret  ✖" onclick="open_manager_process($(this), '<?php echo $_SESSION['user_uuid'] . '-' . $request['REQ_UUID'] . '-' . $request['RAD_UUID']; ?>', 'reject');" />
                                 </div>
@@ -292,6 +297,20 @@
                                 <div>
                                     <input type="button" id="btn_approve" index="<?php echo $i; ?>" requestid="<?php echo $request['ID']; ?>" class="btn_green" value="Onay  ✔" onclick="open_manager_process($(this), '<?php echo $_SESSION['user_uuid'] . '-' . $request['REQ_UUID'] . '-' . $request['RAD_UUID']; ?>', 'approve');" />
                                 </div>
+<?php				} else if($mail_view == '1') { ?>
+                                <div style="width: 105px;"></div>
+                                <div>
+                                    <a href="<?php echo $reject_link; ?>" target="_blank"><input type="button" id="btn_reject" class="btn_red" value="Ret  ✖" /></a>
+                                </div>
+                                <div style="width: 15px;"></div>
+                                <div>
+                                    <a href="<?php echo $revise_link; ?>" target="_blank"><input type="button" id="btn_revise" class="btn_yellow" value="Revize  ✎" /></a>
+                                </div>
+                                <div style="width: 15px;"></div>
+                                <div>
+                                    <a href="<?php echo $approve_link; ?>" target="_blank"><input type="button" id="btn_approve" class="btn_green" value="Onay  ✔" /></a>
+                                </div>
+<?php				} ?>
 <?php			} else if($request['STATUS_ID'] == '13') { ?>
                                 <div>
                                     <input type="button" id="btn_cancel" index="<?php echo $i; ?>" requestid="<?php echo $request['ID']; ?>" class="btn_red" style="width: 150px;" value="Talebi İptal Et  ✖" onclick="open_manager_process($(this), '<?php echo $_SESSION['user_uuid'] . '-' . $request['REQ_UUID'] . '-' . $request['RAD_UUID']; ?>', 'cancel');" />
@@ -302,17 +321,19 @@
                                 </div>
 <?php			} ?>
 <?php		} ?>
-                            </div>
+                            </div></div>
                         </div>
                     </div>
                 </div>
-                <div id="div_reservation_detail_<?php echo $i; ?>" style="border: solid 1px green; padding: 20px; margin-top: 10px; margin-bottom: 20px;" hidden></div>
+<?php		if($mail_view == '0') { ?>
+                <div id="div_reservation_detail_<?php echo $i; ?>" style="border: solid 1px green; padding: 20px; margin-top: 10px; margin-bottom: 30px;" hidden></div>
                 <div id="div_manager_process_<?php echo $i; ?>" style="height: 150px;" hidden></div>
+<?php		} ?>
             </form>
-<?php	} else if($list_type == '1' || $list_type == '2') { ?>
-            <div style="height: 20px;"></div>
+<?php	} else if(($list_type == '1' || $list_type == '2') && $mail_view == '0') { ?>
+            <div style="height: 30px;"></div>
 <?php	} ?>
         </div>
-<?php	if($list_type == '1' || $list_type == '2') { ?>
+<?php	if(($list_type == '1' || $list_type == '2') && $mail_view == '0') { ?>
     </div>
 <?php	} ?>

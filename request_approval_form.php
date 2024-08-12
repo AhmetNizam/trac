@@ -1,17 +1,11 @@
 <?php
 	require("./library.php");
 
-    $operation_url = $_PARAM['webServerURL'] . '/trac/decide_request.php?link=user_uuid-request_uuid-request_approver_detail_uuid';
-	$approve_link = $operation_url . '&process=approve';
-	$revise_link = $operation_url . '&process=revise';
-	$reject_link = $operation_url . '&process=reject';
-
 	$request = $_SESSION['display']['request'];
 	$travelers = $_SESSION['display']['travelers'];
 	$list_type = '0';
 	$i = 0;
 ?>
-
     <div id="div_preview_page">
 <?php
     include("./request_design.php");
@@ -30,21 +24,6 @@
                 <div style="width: 15px;"></div>
                 <div>
                     <input type="button" id="btn_approve" class="btn" value="Onayla ✔" onClick="save_request();" />
-                </div>
-            </div>
-        </div>
-        <div id="div_approval_buttons" align="center" hidden>
-            <div style="display: flex; width: 300px;">
-                <div>
-                    <a href="<?php echo $reject_link; ?>" target="_blank"><input type="button" id="btn_reject" class="btn_red" value="Reddet ✖" /></a>
-                </div>
-                <div style="width: 15px;"></div>
-                <div>
-                    <a href="<?php echo $revise_link; ?>" target="_blank"><input type="button" id="btn_revise" class="btn_yellow" value="Revize ✎" /></a>
-                </div>
-                <div style="width: 15px;"></div>
-                <div>
-                    <a href="<?php echo $approve_link; ?>" target="_blank"><input type="button" id="btn_approve" class="btn_green" value="Onayla ✔" /></a>
                 </div>
             </div>
         </div>

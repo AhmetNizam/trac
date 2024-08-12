@@ -19,7 +19,7 @@
 								 FROM REQUEST
 								 WHERE UUID = :request_uuid ");
 
-		$stmt->bindParam(':request_uuid', $request_uuid, PDO::PARAM_INT);
+		$stmt->bindParam(':request_uuid', $request_uuid, PDO::PARAM_STR);
 		$stmt->execute();
 		$request = $stmt->fetch(PDO::FETCH_ASSOC);
 		$stmt->closeCursor();

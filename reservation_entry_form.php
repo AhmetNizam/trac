@@ -450,7 +450,16 @@
                     if(data.Rows) {
                         var rowData = data.Rows[0];
                         if(rowData.status == '1') {
-                            send_mail();
+                            var reservationid = rowData.reservationid;
+                            $.getJSON('./get_mail_recipient_list.php?type=2&reservation_id=' + reservationid,
+                                function(data) {
+                                    if(data.Rows) {
+                                        send_mail(reservationid);
+                                    } else {
+                                        alert('Mail alıcı listesi oluşturulurken bir hata oluştu!');
+                                    }
+                                }
+                            );
                         } else {
                             alert('Rezervasyon kaydedilirken bir hata oluştu!');
                         }
@@ -461,61 +470,42 @@
             );
         }
 
-        function send_mail() {
-            const htmlContent = document.documentElement.outerHTML;
-            const doc = new DOMParser().parseFromString(htmlContent, "text/html");
-
-            const link = doc.getElementsByTagName('link');
-            for(let i = link.length - 1; i >= 0; i--) {
-                link[i].remove();
-            }
-
-            const script = doc.getElementsByTagName('script');
-            for(let i = script.length - 1; i >= 0; i--) {
-                script[i].remove();
-            }
-
-            doc.getElementById('div_form_page').remove();
-            doc.getElementById('div_save_buttons').remove();
-            doc.getElementById('div_completion_page').remove();
-            doc.getElementById('div_main_area').style.width = '900px';
-            doc.getElementById('div_main_area').style.margin = '0px';
-            doc.getElementById('div_preview_page').style.display = 'block';
-            doc.getElementById('div_approval_buttons').style.display = 'block';
-
-            const style = doc.createElement('style');
-            style.setAttribute('type', 'text/css');
-            style.innerHTML = '\n' + cssDoc + '\n';
-            doc.getElementsByTagName('head')[0].appendChild(style);
-
-            let htmlDoc = doc.documentElement.outerHTML;
-            htmlDoc = htmlDoc.replace('><head>', '>\n\t<head>').replace('<style', '\t<style').replace('</style></head>', '\t\t</style>\n\t</head>').replace('</body></html>', '\t</body>\n</html>');
-            const lines = htmlDoc.split('\n');
-            var htmlText = '';
-
-            lines.forEach(
-                function(line) {
-                    if(line.trim() != '') {
-                        htmlText += line + '\n';
-                    }
-                }
-            );
-
-            console.clear();
-            console.log(htmlText);
-
+        function send_mail(reservationid) {
             $.ajax({
-                type: "POST",
-                url: "./send_mail.php",
-                data: { mailBody: htmlText },	// Gönderilecek veri
-                success: function(response) {
-                    toggle_visibility([$('#div_completion_page')], [$('#div_preview_page')]);
-                    console.log('Mail gönderimi başarılı.');
-                    console.log('Sunucudan gelen yanıt:', response);
+                url: './reservation_view.php?list_type=3&mail_view=1&reservation_id=' + reservationid, // HTML almak istediğiniz sayfanın URL'si
+                method: "GET",
+                dataType: "html",
+                success: function(htmlText) {
+                    // HTML içeriği burada 'htmlText' değişkeninde
+
+                    const doc = new DOMParser().parseFromString(htmlText, "text/html");
+
+                    const link = doc.getElementsByTagName('link');
+                    for(let i = link.length - 1; i >= 0; i--) {
+                        link[i].remove();
+                    }
+
+                    htmlText = doc.documentElement.outerHTML.replace('.style {}', cssDoc);
+                    console.log(htmlText);
+
+                    $.ajax({
+                        type: "POST",
+                        url: "./send_mail.php",
+                        data: { mailBody: htmlText },	// Gönderilecek veri
+                        success: function(response) {
+                            toggle_visibility([$('#div_completion_page')], [$('#div_preview_page')]);
+                            console.log('Mail gönderimi başarılı.');
+                            console.log('Sunucudan gelen yanıt:', response);
+                        },
+                        error: function(xhr, status, error) {
+                            alert('Talep kaydedildi ancak mail gönderilirken bir hata oluştu!');
+                            console.error('Talep kaydedildi ancak mail gönderilirken bir hata oluştu!', error);
+                        }
+                    });
                 },
                 error: function(xhr, status, error) {
-                    alert('Talep kaydedildi ancak mail gönderilirken bir hata oluştu!');
-                    console.error('Talep kaydedildi ancak mail gönderilirken bir hata oluştu!', error);
+                    console.log('Bir hata oluştu.');
+                    console.log(error);
                 }
             });
         }
@@ -533,6 +523,7 @@
         <div id="div_main_frame" class="main_frame">
             <div style="height: 40px;"></div>
             <div class="heading">ULAŞIM ve KONAKLAMA REZERVASYON FORMU</div>
+            <div style="height: 10px;"></div>
             <div id="div_form_page">
                 <form id="form1" method="post" enctype="multipart/form-data" action="">
                     <div id="div_request_information">

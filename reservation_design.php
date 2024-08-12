@@ -1,7 +1,8 @@
-<?php	if($list_type == '1' || $list_type == '2') { ?>
+<?php   $mail_view = $_GET['mail_view'] ?? '0'; ?>
+<?php	if(($list_type == '1' || $list_type == '2') && $mail_view == '0') { ?>
     <div id="div_row_frame_<?php echo $i; ?>" class="row<?php echo ($i % 2) + 1; ?>">
         <div style="height: 10px;"></div>
-        <div id="div_reservation_top_<?php echo $i; ?>" style="height: 20px;"<?php if($list_type != '0') { echo ' hidden'; } ?>></div>
+        <div id="div_reservation_top_<?php echo $i; ?>" style="height: 20px;"<?php if($list_type != '0' && $mail_view == '0') { echo ' hidden'; } ?>></div>
 <?php	} ?>
         <div onClick="slide_reservation('<?php echo $i; ?>');">
             <div class="row_title" style="display: flex;">
@@ -48,7 +49,7 @@
             </div>
             <div style="height: 10px;"></div>
         </div>
-        <div id="div_reservation_<?php echo $i; ?>"<?php if($list_type == '1' || $list_type == '2') { echo ' hidden'; } ?>>
+        <div id="div_reservation_<?php echo $i; ?>"<?php if(($list_type == '1' || $list_type == '2') && $mail_view == '0') { echo ' hidden'; } ?>>
 <?php	if($reservation['TRANSPORTATION']) { ?>
             <div id="div_transportation">
                 <div class="subheading">Ulaşım Bilgileri</div>
@@ -244,7 +245,7 @@
                                 </div>
                             </div>
                         </div>
-<?php		if($list_type == '2') { ?>
+<?php		if($list_type == '2' && $reservation['STATUS_ID'] == '21') { ?>
                         <div style="width: 50%;">
                             <div style="display: flex; justify-content: flex-end;">
                                 <div>
@@ -255,11 +256,15 @@
 <?php		} ?>
                     </div>
                 </div>
-                <div id="div_request_detail_<?php echo $i; ?>" style="border: solid 1px green; padding: 20px; margin-top: 10px; margin-bottom: 20px;" hidden></div>
+<?php		if($mail_view == '0') { ?>
+                <div id="div_request_detail_<?php echo $i; ?>" style="border: solid 1px green; padding: 20px; margin-top: 10px; margin-bottom: 30px;" hidden></div>
                 <div id="div_manager_process_<?php echo $i; ?>" style="height: 150px;" hidden></div>
+<?php		} ?>
             </form>
+<?php	} else if($mail_view == '1') { ?>
+            <div style="height: 30px;"></div>
 <?php	} ?>
         </div>
-<?php	if($list_type == '1' || $list_type == '2') { ?>
+<?php	if(($list_type == '1' || $list_type == '2') && $mail_view == '0') { ?>
     </div>
 <?php	} ?>

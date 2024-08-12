@@ -41,14 +41,16 @@
 
 			$mail_recipient_list = $_SESSION['mail_recipient_list'];
 
+            $mail_count = 0;
 			foreach($mail_recipient_list as $mail_recipient) {
 				$mail->clearAddresses();
 				$mail->addAddress($mail_recipient['mail'], $mail_recipient['name']);
 				$mail->Body = str_replace('link=user_uuid-request_uuid-request_approver_detail_uuid', 'link=' . $mail_recipient['uuid'] . '-' . $_SESSION['request']['uuid'] . '-' . $_SESSION['request']['approver']['uuid'], $_POST['mailBody']);
 				$mail->send();
+                $mail_count++;
 			}
 
-			echo 'Mesaj gönderildi';
+			echo $mail_count . ' kişiye mesaj gönderildi';
 		} catch (Exception $e) {
 			echo 'Mesaj gönderilemedi. Hata: ', $mail->ErrorInfo;
 		}

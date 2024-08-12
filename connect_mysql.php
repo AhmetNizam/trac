@@ -1,9 +1,13 @@
 <?php
+    require("params.php");
+
 	function get_mysql_connection() {
-		$servername = "localhost";
-		$database = "transportation_accommodation";
-		$username = "root";
-		$password = "an112743.";
+        global $_PARAM;
+
+		$servername = $_PARAM['dbServerName'];
+		$database = $_PARAM['dbName'];
+		$username = $_PARAM['dbUsername'];
+		$password = $_PARAM['dbPassword'];
 
 		try {
 			$connection = new PDO("mysql:host=$servername;dbname=$database;charset=utf8", $username, $password);

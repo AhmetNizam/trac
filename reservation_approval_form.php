@@ -5,9 +5,7 @@
 	$list_type = '0';
 	$i = 0;
 ?>
-
     <div id="div_preview_page">
-        <div style="height: 10px;"></div>
 <?php
     include("./reservation_design.php");
 ?>
@@ -25,21 +23,6 @@
                 <div style="width: 15px;"></div>
                 <div>
                     <input type="button" id="btn_approve" class="btn" value="Onayla ✔" onClick="save_reservation();" />
-                </div>
-            </div>
-        </div>
-        <div id="div_approval_buttons" align="center" hidden>
-            <div style="display: flex; width: 300px;">
-                <div>
-                    <a href="<?php echo $reject_link; ?>" target="_blank"><input type="button" id="btn_reject" class="btn_red" value="Reddet ✖" /></a>
-                </div>
-                <div style="width: 15px;"></div>
-                <div>
-                    <a href="<?php echo $revise_link; ?>" target="_blank"><input type="button" id="btn_revise" class="btn_yellow" value="Revize ✎" /></a>
-                </div>
-                <div style="width: 15px;"></div>
-                <div>
-                    <a href="<?php echo $approve_link; ?>" target="_blank"><input type="button" id="btn_approve" class="btn_green" value="Onayla ✔" /></a>
                 </div>
             </div>
         </div>

@@ -635,7 +635,7 @@
                     }
                 }
             ).done(
-                function () {
+                function() {
                     check_form(item);
                 }
             );
@@ -983,15 +983,11 @@
                     if(data.Rows) {
                         var rowData = data.Rows[0];
                         if(rowData.status == '1') {
-                            $.getJSON('./get_mail_recipient_list.php',
+                            var requestid = rowData.requestid;
+                            $.getJSON('./get_mail_recipient_list.php?type=1&request_id=' + requestid,
                                 function(data) {
                                     if(data.Rows) {
-                                        var rowData = data.Rows[0];
-                                        if(rowData.status == '1') {
-                                            send_mail();
-                                        } else {
-                                            alert('Mail alıcı listesi oluşturulurken bir hata oluştu!');
-                                        }
+                                        send_mail(requestid);
                                     } else {
                                         alert('Mail alıcı listesi oluşturulurken bir hata oluştu!');
                                     }
@@ -1007,61 +1003,42 @@
             );
         }
 
-        function send_mail() {
-            const htmlContent = document.documentElement.outerHTML;
-            const doc = new DOMParser().parseFromString(htmlContent, "text/html");
-
-            const link = doc.getElementsByTagName('link');
-            for(let i = link.length - 1; i >= 0; i--) {
-                link[i].remove();
-            }
-
-            const script = doc.getElementsByTagName('script');
-            for(let i = script.length - 1; i >= 0; i--) {
-                script[i].remove();
-            }
-
-            doc.getElementById('div_form_page').remove();
-            doc.getElementById('div_save_buttons').remove();
-            doc.getElementById('div_completion_page').remove();
-            doc.getElementById('div_main_area').style.width = '900px';
-            doc.getElementById('div_main_area').style.margin = '0px';
-            doc.getElementById('div_preview_page').style.display = 'block';
-            doc.getElementById('div_approval_buttons').style.display = 'block';
-
-            const style = doc.createElement('style');
-            style.setAttribute('type', 'text/css');
-            style.innerHTML = '\n' + cssDoc + '\n';
-            doc.getElementsByTagName('head')[0].appendChild(style);
-
-            let htmlDoc = doc.documentElement.outerHTML;
-            htmlDoc = htmlDoc.replace('><head>', '>\n\t<head>').replace('<style', '\t<style').replace('</style></head>', '\t\t</style>\n\t</head>').replace('</body></html>', '\t</body>\n</html>');
-            const lines = htmlDoc.split('\n');
-            var htmlText = '';
-
-            lines.forEach(
-                function(line) {
-                    if(line.trim() != '') {
-                        htmlText += line + '\n';
-                    }
-                }
-            );
-
-            console.clear();
-            console.log(htmlText);
-
+        function send_mail(requestid) {
             $.ajax({
-                type: "POST",
-                url: "./send_mail.php",
-                data: { mailBody: htmlText },	// Gönderilecek veri
-                success: function(response) {
-                    toggle_visibility([$('#div_completion_page')], [$('#div_preview_page')]);
-                    console.log('Mail gönderimi başarılı.');
-                    console.log('Sunucudan gelen yanıt:', response);
+                url: './request_view.php?list_type=2&mail_view=1&request_id=' + requestid, // HTML almak istediğiniz sayfanın URL'si
+                method: "GET",
+                dataType: "html",
+                success: function(htmlText) {
+                    // HTML içeriği burada 'htmlText' değişkeninde
+
+                    const doc = new DOMParser().parseFromString(htmlText, "text/html");
+
+                    const link = doc.getElementsByTagName('link');
+                    for(let i = link.length - 1; i >= 0; i--) {
+                        link[i].remove();
+                    }
+
+                    htmlText = doc.documentElement.outerHTML.replace('.style {}', cssDoc);
+                    console.log(htmlText);
+
+                    $.ajax({
+                        type: "POST",
+                        url: "./send_mail.php",
+                        data: { mailBody: htmlText },	// Gönderilecek veri
+                        success: function(response) {
+                            toggle_visibility([$('#div_completion_page')], [$('#div_preview_page')]);
+                            console.log('Mail gönderimi başarılı.');
+                            console.log('Sunucudan gelen yanıt:', response);
+                        },
+                        error: function(xhr, status, error) {
+                            alert('Talep kaydedildi ancak mail gönderilirken bir hata oluştu!');
+                            console.error('Talep kaydedildi ancak mail gönderilirken bir hata oluştu!', error);
+                        }
+                    });
                 },
                 error: function(xhr, status, error) {
-                    alert('Talep kaydedildi ancak mail gönderilirken bir hata oluştu!');
-                    console.error('Talep kaydedildi ancak mail gönderilirken bir hata oluştu!', error);
+                    console.log('Bir hata oluştu.');
+                    console.log(error);
                 }
             });
         }
